@@ -57,8 +57,57 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
             fontFamily: "Pretendard", padding: "0 56px 0 36px",
           }}
         >
-          <div style={{ display: "flex", width: 300, alignSelf: "flex-end", justifyContent: "center" }}>
+          <div
+            style={{
+              display: "flex", position: "relative", width: 300, height: "100%",
+              alignItems: "flex-end", justifyContent: "center",
+              backgroundImage: "radial-gradient(circle at 50% 62%, rgba(245,195,75,0.50) 0%, rgba(245,195,75,0.18) 40%, rgba(250,247,242,0) 68%)",
+            }}
+          >
             <VesselCharacter code="WROJ" size={290} />
+            {/* 넘치는 동전 — 항아리 입구에서 튀어오르는 궤적 */}
+            {[
+              { size: 56, left: 122, top: 34, rot: -12 },
+              { size: 44, left: 58, top: 84, rot: 18 },
+              { size: 40, left: 196, top: 72, rot: -24 },
+              { size: 34, left: 26, top: 160, rot: 30 },
+              { size: 36, left: 236, top: 150, rot: 12 },
+            ].map((c, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex", position: "absolute", left: c.left, top: c.top,
+                  width: c.size, height: c.size, borderRadius: 999,
+                  alignItems: "center", justifyContent: "center",
+                  backgroundImage: "linear-gradient(135deg, #f7d06b 0%, #e8a93c 100%)",
+                  border: "3px solid #c98a2e",
+                  transform: `rotate(${c.rot}deg)`,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex", width: "58%", height: "58%", borderRadius: 999,
+                    border: "2px solid rgba(178,110,27,0.55)",
+                  }}
+                />
+              </div>
+            ))}
+            {/* 반짝이 */}
+            {[
+              { size: 34, left: 18, top: 44 },
+              { size: 22, left: 250, top: 30 },
+              { size: 18, left: 270, top: 210 },
+            ].map((s, i) => (
+              <svg
+                key={i}
+                viewBox="0 0 24 24"
+                width={s.size}
+                height={s.size}
+                style={{ position: "absolute", left: s.left, top: s.top }}
+              >
+                <path d="M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z" fill="#f5c34b" />
+              </svg>
+            ))}
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", marginLeft: 32 }}>
             <div style={{ display: "flex", fontSize: 66, letterSpacing: "-2px", lineHeight: 1.15 }}>
