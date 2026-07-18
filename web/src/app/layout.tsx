@@ -3,8 +3,8 @@ import Script from "next/script";
 import { SourceCapture } from "@/components/SourceCapture";
 import "./globals.css";
 
-const FONT_CSS =
-  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
+// 셀프호스팅 (M4) — public/fonts/pretendard, 브라우저는 화면에 필요한 subset woff2만 받는다
+const FONT_CSS = "/fonts/pretendard/pretendardvariable-dynamic-subset.css";
 
 const TITLE = "재물그릇 — 내 재물그릇, 100명 중 몇 명일까";
 const DESC = "생년월일시로 확인하는 나의 재물그릇 16유형. AI가 전원 다 봐드립니다 — 무료.";
@@ -46,8 +46,7 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         {/* 폰트 CSS 비블로킹 로드 — 스크립트 삽입 링크는 렌더를 막지 않고, React 트리 밖이라
-            하이드레이션 불일치도 없다. TODO(M4 배포): next/font/local 셀프 호스팅으로 교체 */}
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+            하이드레이션 불일치도 없다 */}
         <link rel="preload" as="style" href={FONT_CSS} />
         <noscript>
           <link rel="stylesheet" href={FONT_CSS} />
