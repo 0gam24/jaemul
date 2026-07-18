@@ -15,17 +15,18 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
   openGraph: {
-    title: TITLE,
-    description: DESC,
+    // 카톡 미리보기 3층 설계: 이미지=훅("상위 ?%") / title=정체 / description=유형명 미끼
+    title: "재물그릇 — AI 재물운 사주 16유형",
+    description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초 — 무료, 회원가입 없음.",
     siteName: "재물그릇",
     type: "website",
     locale: "ko_KR",
-    images: [{ url: "/api/og/home", width: 1200, height: 1200 }],
+    images: [{ url: "/api/og/home", width: 800, height: 418 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: TITLE,
-    description: DESC,
+    title: "재물그릇 — AI 재물운 사주 16유형",
+    description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초 — 무료, 회원가입 없음.",
     images: ["/api/og/home"],
   },
 };

@@ -44,52 +44,42 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const W = story ? 1080 : 1200;
   const H = story ? 1920 : 1200;
 
-  // 홈(랜딩) 공유 카드 — 유형 미정 상태의 기본 카드
+  // 홈(랜딩) 공유 카드 — 카톡 미리보기 최적화 가로형(1.91:1)
+  // 훅 설계: 이미지="상위 ?%"(호기심 갭) / og:title=정체 / og:description=유형명 미끼 — 3층 역할 분담
   if (slug === "home") {
     const font = await loadFont(req);
     return new ImageResponse(
       (
         <div
           style={{
-            width: "100%", height: "100%", display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            backgroundColor: "#faf7f2", color: "#2b2118", fontFamily: "Pretendard",
+            width: "100%", height: "100%", display: "flex", flexDirection: "row",
+            alignItems: "center", backgroundColor: "#faf7f2", color: "#2b2118",
+            fontFamily: "Pretendard", padding: "0 56px 0 36px",
           }}
         >
-          <div
-            style={{
-              display: "flex", flexDirection: "column", alignItems: "center",
-              backgroundColor: "#ffffff", borderRadius: 48, border: "3px solid #ece5da",
-              padding: story ? "110px 90px" : "90px 110px",
-            }}
-          >
-            <div style={{ display: "flex", fontSize: 34, fontWeight: 700, color: "#b26e1b", letterSpacing: 6 }}>
-              AI 재물운 사주
+          <div style={{ display: "flex", width: 300, alignSelf: "flex-end", justifyContent: "center" }}>
+            <VesselCharacter code="WROJ" size={290} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", marginLeft: 32 }}>
+            <div style={{ display: "flex", fontSize: 66, letterSpacing: "-2px", lineHeight: 1.15 }}>
+              내 재물그릇,
             </div>
-            <div style={{ display: "flex", marginTop: 40 }}>
-              <VesselCharacter code="WROJ" size={story ? 430 : 400} />
-            </div>
-            <div style={{ display: "flex", fontSize: story ? 108 : 100, fontWeight: 800, marginTop: 36, letterSpacing: -2 }}>
-              재물그릇
-            </div>
-            <div style={{ display: "flex", marginTop: 18, fontSize: 42, color: "#6f6257" }}>
-              내 재물그릇, 100명 중 몇 명일까
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "baseline", marginTop: 4 }}>
+              <div style={{ display: "flex", fontSize: 118, letterSpacing: "-4px", lineHeight: 1.05 }}>상위</div>
+              <div style={{ display: "flex", fontSize: 140, color: "#d98e32", letterSpacing: "-6px", lineHeight: 1.05, marginLeft: 14 }}>?%</div>
             </div>
             <div
               style={{
-                display: "flex", marginTop: 44, padding: "18px 44px", borderRadius: 999,
-                backgroundColor: "#f7e9d4", color: "#b26e1b", fontSize: 44, fontWeight: 800,
+                display: "flex", marginTop: 30, backgroundColor: "#f7e9d4", borderRadius: 999,
+                padding: "10px 26px", fontSize: 28, color: "#b26e1b",
               }}
             >
               생년월일만 넣으면 10초 · 무료
             </div>
           </div>
-          <div style={{ display: "flex", marginTop: 56, fontSize: 34, color: "#a3968a" }}>
-            16가지 그릇 유형 · AI가 전원 다 봐드립니다
-          </div>
         </div>
       ),
-      { width: W, height: H, fonts: [{ name: "Pretendard", data: font, weight: 700 as const, style: "normal" as const }] }
+      { width: 800, height: 418, fonts: [{ name: "Pretendard", data: font, weight: 700 as const, style: "normal" as const }] }
     );
   }
 
