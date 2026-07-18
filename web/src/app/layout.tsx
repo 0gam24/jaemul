@@ -6,10 +6,28 @@ import "./globals.css";
 const FONT_CSS =
   "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
 
+const TITLE = "재물그릇 — 내 재물그릇, 100명 중 몇 명일까";
+const DESC = "생년월일시로 확인하는 나의 재물그릇 16유형. AI가 전원 다 봐드립니다 — 무료.";
+
 export const metadata: Metadata = {
-  title: "재물그릇 — 내 재물그릇, 100명 중 몇 명일까",
-  description:
-    "생년월일시로 확인하는 나의 재물그릇 16유형. AI가 전원 다 봐드립니다 — 무료.",
+  // 절대 URL 기준점 — 없으면 OG 이미지가 localhost로 생성돼 카톡 미리보기가 깨진다
+  metadataBase: new URL("https://jaemul.kr"),
+  title: TITLE,
+  description: DESC,
+  openGraph: {
+    title: TITLE,
+    description: DESC,
+    siteName: "재물그릇",
+    type: "website",
+    locale: "ko_KR",
+    images: [{ url: "/api/og/home", width: 1200, height: 1200 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESC,
+    images: ["/api/og/home"],
+  },
 };
 
 export const viewport: Viewport = {

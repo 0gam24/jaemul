@@ -38,18 +38,69 @@ async function loadFont(req: Request): Promise<ArrayBuffer> {
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const vessel = vesselBySlug(slug);
-  if (!vessel) return new Response("not found", { status: 404 });
 
   const sp = new URL(req.url).searchParams;
   const story = sp.get("story") === "1";
+  const W = story ? 1080 : 1200;
+  const H = story ? 1920 : 1200;
+
+  // 홈(랜딩) 공유 카드 — 유형 미정 상태의 기본 카드
+  if (slug === "home") {
+    const font = await loadFont(req);
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%", height: "100%", display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            backgroundColor: "#faf7f2", color: "#2b2118", fontFamily: "Pretendard",
+          }}
+        >
+          <div
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center",
+              backgroundColor: "#ffffff", borderRadius: 48, border: "3px solid #ece5da",
+              padding: story ? "110px 90px" : "90px 110px",
+            }}
+          >
+            <div style={{ display: "flex", fontSize: 34, fontWeight: 700, color: "#b26e1b", letterSpacing: 6 }}>
+              AI 재물운 사주
+            </div>
+            <div style={{ display: "flex", marginTop: 40 }}>
+              <VesselCharacter code="WROJ" size={story ? 430 : 400} />
+            </div>
+            <div style={{ display: "flex", fontSize: story ? 108 : 100, fontWeight: 800, marginTop: 36, letterSpacing: -2 }}>
+              재물그릇
+            </div>
+            <div style={{ display: "flex", marginTop: 18, fontSize: 42, color: "#6f6257" }}>
+              내 재물그릇, 100명 중 몇 명일까
+            </div>
+            <div
+              style={{
+                display: "flex", marginTop: 44, padding: "18px 44px", borderRadius: 999,
+                backgroundColor: "#f7e9d4", color: "#b26e1b", fontSize: 44, fontWeight: 800,
+              }}
+            >
+              생년월일만 넣으면 10초 · 무료
+            </div>
+          </div>
+          <div style={{ display: "flex", marginTop: 56, fontSize: 34, color: "#a3968a" }}>
+            16가지 그릇 유형 · AI가 전원 다 봐드립니다
+          </div>
+        </div>
+      ),
+      { width: W, height: H, fonts: [{ name: "Pretendard", data: font, weight: 700 as const, style: "normal" as const }] }
+    );
+  }
+
+  const vessel = vesselBySlug(slug);
+  if (!vessel) return new Response("not found", { status: 404 });
+
   const mbti = sp.get("t") ? normalizeMbti(sp.get("t")!) : null;
   const mRaw = Number(sp.get("m"));
   const teaserMonth = Number.isInteger(mRaw) && mRaw >= 1 && mRaw <= 12 ? mRaw : null;
   const vsChallenge = sp.get("vs") === "1";
   const duelWith = sp.get("b") ? vesselBySlug(sp.get("b")!) : null;
-  const W = story ? 1080 : 1200;
-  const H = story ? 1920 : 1200;
   const font = await loadFont(req);
 
   // 대결 도전장 카드 — 받은 사람이 "붙어보자"에 반응하게
