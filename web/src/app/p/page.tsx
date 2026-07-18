@@ -7,6 +7,7 @@ import { loadReceipt, PRICE_KRW } from "@/lib/pay";
 import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
 import { VesselCharacter } from "@/components/VesselCharacter";
 import { track } from "@/lib/track";
+import { getTurnstileToken } from "@/lib/turnstile";
 import type { Reading } from "@/lib/reading";
 
 /**
@@ -33,13 +34,15 @@ export default function PaidReadingPage() {
   const started = useRef(false);
   const inputRef = useRef<StoredResult["input"] | null>(null);
 
-  function generate() {
+  async function generate() {
     if (!inputRef.current) return;
     setState("loading");
+    // 봇 방어 토큰 (Invisible — 사용자에겐 보이지 않음). 키 미설정 시 null → 서버도 스킵
+    const turnstileToken = await getTurnstileToken();
     fetch("/api/reading", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input: inputRef.current }),
+      body: JSON.stringify({ input: inputRef.current, turnstileToken }),
     })
       .then(async (r) => {
         if (!r.ok) throw new Error("failed");

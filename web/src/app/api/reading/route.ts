@@ -23,7 +23,31 @@ import {
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-type Body = { input: ManseInput };
+type Body = { input: ManseInput; turnstileToken?: string };
+
+/**
+ * Turnstile 서버 검증 (M4 봇 방어) — LLM 비용이 나가는 이 엔드포인트의 문지기.
+ * TURNSTILE_SECRET_KEY가 없으면 검증을 건너뛴다 (키 등록 전 무중단 배포용).
+ */
+async function verifyTurnstile(token: string | undefined, ip: string | null): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true;
+  if (!token) return false;
+  try {
+    const params = new URLSearchParams({ secret, response: token });
+    if (ip) params.set("remoteip", ip);
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: params,
+    });
+    const data = (await res.json()) as { success: boolean };
+    return data.success === true;
+  } catch {
+    // 검증 서버 장애 시 결제 고객을 막지 않는다 (fail-open)
+    return true;
+  }
+}
 
 function isValidInput(input: unknown): input is ManseInput {
   if (typeof input !== "object" || input === null) return false;
@@ -72,6 +96,11 @@ export async function POST(req: Request) {
   }
   if (!isValidInput(body.input)) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  }
+
+  const ip = req.headers.get("cf-connecting-ip");
+  if (!(await verifyTurnstile(body.turnstileToken, ip))) {
+    return NextResponse.json({ error: "bot_check_failed" }, { status: 403 });
   }
 
   // 서버 재계산 + 엔진 캘린더 플랜 (결제 시점 기준 롤링 12개월)
