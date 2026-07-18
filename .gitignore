@@ -1,0 +1,14 @@
+# 내부 문서 — 공개 저장소에 올리지 않음 (사업 기획·전략·인수인계 메모)
+/01 기획/
+HANDOVER.md
+KICKOFF.md
+CLAUDE.md
+SPEC.md
+.claude/
+.claude-*.txt
+
+# 환경 변수 (이중 안전장치 — web/.gitignore에도 있음)
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example

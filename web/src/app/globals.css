@@ -1,0 +1,260 @@
+@import "tailwindcss";
+
+/* ── 디자인 토큰 (CLAUDE.md 확정 시스템) ─────────────────── */
+:root {
+  --bg: #faf7f2;            /* 웜 아이보리 — 밝은 테마 고정 */
+  --card: #ffffff;
+  --ink: #2b2118;           /* 붓먹색 — 순검정 대신 따뜻한 흑갈 */
+  --ink-soft: #6f6257;
+  --ink-faint: #a3968a;
+  --line: #ece5da;
+  --gold: #d98e32;          /* 골드 앰버 — 포인트 1색 */
+  --gold-deep: #b26e1b;
+  --gold-soft: #f7e9d4;
+  /* 오행 파스텔 */
+  --el-mok: #7fb77e;
+  --el-hwa: #e58368;
+  --el-to: #e5b76a;
+  --el-geum: #b9bdbd;
+  --el-su: #7d9cc0;
+  /* 모션 (animate 스킬 — Emil Kowalski) */
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --font-display: inherit; /* 디스플레이 폰트 확정 전 임시 — 교체 지점 1곳 */
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+/* 전 화면 448px 중앙 고정 (실측 공통 문법) */
+.shell {
+  max-width: 448px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 카드 */
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+}
+
+/* 화면당 1개 주 버튼 */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 700;
+  font-size: 17px;
+  text-align: center;
+  transition: transform 100ms ease-out, background 150ms ease;
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+.btn-primary:disabled {
+  background: var(--ink-faint);
+}
+
+/* 입력 요소 */
+.field {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-size: 16px;
+  color: var(--ink);
+  transition: border-color 150ms ease;
+}
+.field:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.seg {
+  display: flex;
+  background: #f1ece4;
+  border-radius: 12px;
+  padding: 4px;
+}
+.seg button {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  transition: color 150ms ease;
+}
+.seg button[data-on="true"] {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(43, 33, 24, 0.08);
+}
+
+/* 숨쉬는 페이월 — 자물쇠 호흡 (대한자운원 blind-lock-pulse 밝은 무드 이식) */
+@keyframes lock-breathe {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+    filter: drop-shadow(0 0 6px rgba(217, 142, 50, 0.25));
+  }
+  50% {
+    transform: translateY(-50%) scale(1.06);
+    filter: drop-shadow(0 0 14px rgba(217, 142, 50, 0.5));
+  }
+}
+.lock-breathe {
+  animation: lock-breathe 2.5s ease-in-out infinite;
+}
+
+/* 유형 스트림 마퀴 */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee 36s linear infinite;
+}
+
+/* ── 랜딩 진입 연출 — JS·하이드레이션 없이 CSS만으로 (LCP 보호) ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up { animation: fade-up 0.55s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.fade-up-1 { animation-delay: 0.1s; }
+.fade-up-2 { animation-delay: 0.25s; }
+.fade-up-3 { animation-delay: 0.4s; }
+
+@keyframes bob {
+  0%, 100% { transform: none; }
+  50% { transform: translateY(6px); }
+}
+.bob { animation: bob 1.6s ease-in-out infinite; }
+
+/* 스크롤 진입 리빌 — CSS Scroll-Driven Animations (미지원 브라우저는 그냥 보임) */
+@supports (animation-timeline: view()) {
+  .scroll-reveal {
+    animation: fade-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+/* 유료 대기 연출 — 가마 캐릭터 둥실 + 문구 페이드 */
+@keyframes float-bob {
+  0%, 100% { transform: none; }
+  50% { transform: translateY(-6px); }
+}
+.float-bob { animation: float-bob 1.8s ease-in-out infinite; }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-in-up { animation: fade-in-up 0.4s ease-out both; }
+
+/* 그릇 카드 호버 — 카드가 살짝 떠오르고 그릇이 꿈틀 (마우스 있는 기기에서만) */
+@keyframes vessel-wiggle {
+  0% { transform: rotate(0); }
+  25% { transform: rotate(-5deg); }
+  50% { transform: rotate(4deg); }
+  75% { transform: rotate(-2deg); }
+  100% { transform: rotate(0); }
+}
+@media (hover: hover) {
+  .vessel-card {
+    position: relative;
+    transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.22s ease;
+  }
+  .vessel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(217, 142, 50, 0.18);
+  }
+  .vessel-card:hover svg {
+    animation: vessel-wiggle 0.5s ease-in-out;
+    transform-origin: 50% 85%;
+  }
+
+  /* 말풍선 — 회전 띠의 그릇별 설명(data-tip)이 호버 시 카드 위로 뜬다 */
+  .vessel-card[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: 168px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.45;
+    background: var(--ink);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 9px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 30;
+  }
+  .vessel-card[data-tip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  /* 가장자리 열은 말풍선이 화면 밖으로 잘리지 않게 정렬 보정 */
+  .vessel-card[data-tip]:nth-child(4n + 1)::after {
+    left: 0;
+    transform: translateY(4px);
+  }
+  .vessel-card[data-tip]:nth-child(4n + 1):hover::after {
+    transform: translateY(0);
+  }
+  .vessel-card[data-tip]:nth-child(4n)::after {
+    left: auto;
+    right: 0;
+    transform: translateY(4px);
+  }
+  .vessel-card[data-tip]:nth-child(4n):hover::after {
+    transform: translateY(0);
+  }
+}
+
+/* 스켈레톤 — /today 첫 페인트 확보 */
+@keyframes shimmer {
+  0% { opacity: 0.55; }
+  50% { opacity: 1; }
+  100% { opacity: 0.55; }
+}
+.skeleton {
+  background: #f1ece4;
+  border-radius: 12px;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
