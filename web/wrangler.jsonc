@@ -35,6 +35,13 @@
 	"observability": {
 		"enabled": true
 	},
+	"analytics_engine_datasets": [
+		{
+			// 계측 (M4) — free_run/share_click/paid_view/daily_view 이벤트 저장 (90일, SQL 조회)
+			"binding": "TRACK",
+			"dataset": "jaemul_events"
+		}
+	],
 	"upload_source_maps": true
 	/**
 	 * Smart Placement
