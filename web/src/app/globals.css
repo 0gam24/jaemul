@@ -150,6 +150,45 @@ body {
 }
 .bob { animation: bob 1.6s ease-in-out infinite; }
 
+/* 히어로 — 빛나는 항아리 + 넘치는 동전 (공유 카드와 동일 세계관) */
+.hero-jar {
+  position: relative;
+  background: radial-gradient(circle at 50% 58%, rgba(245, 195, 75, 0.42) 0%, rgba(245, 195, 75, 0.14) 42%, transparent 68%);
+  padding: 34px 44px 6px;
+}
+.hero-coin {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f7d06b 0%, #e8a93c 100%);
+  border: 2px solid #c98a2e;
+  animation: coin-drift 2.6s ease-in-out infinite;
+}
+.hero-coin i {
+  position: absolute;
+  inset: 20%;
+  border-radius: 999px;
+  border: 1.5px solid rgba(178, 110, 27, 0.55);
+}
+.hero-coin-1 { width: 30px; height: 30px; left: 50%; top: -2px; margin-left: -15px; }
+.hero-coin-2 { width: 22px; height: 22px; left: 16px; top: 26px; animation-delay: 0.5s; }
+.hero-coin-3 { width: 20px; height: 20px; right: 18px; top: 22px; animation-delay: 1.1s; }
+@keyframes coin-drift {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-7px) rotate(8deg); }
+}
+.hero-spark {
+  position: absolute;
+  color: #f5c34b;
+  animation: spark-twinkle 2.2s ease-in-out infinite;
+}
+.hero-spark-1 { left: 2px; top: 64px; font-size: 18px; }
+.hero-spark-2 { right: 6px; top: 100px; font-size: 13px; animation-delay: 0.9s; }
+@keyframes spark-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
 /* 스크롤 진입 리빌 — CSS Scroll-Driven Animations (미지원 브라우저는 그냥 보임) */
 @supports (animation-timeline: view()) {
   .scroll-reveal {

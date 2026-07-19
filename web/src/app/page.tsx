@@ -24,9 +24,15 @@ export default function Home() {
         >
           내 재물그릇,
           <br />
-          100명 중 몇 명일까
+          상위 <span className="text-[42px]" style={{ color: "var(--gold)" }}>?%</span>
         </h1>
-        <div className="fade-up fade-up-2 mt-6">
+        {/* 공유 카드와 동일한 세계관 — 빛나는 항아리 + 넘치는 동전 (CSS만, LCP 게이트 준수) */}
+        <div className="fade-up fade-up-2 hero-jar mt-6">
+          <span className="hero-coin hero-coin-1" aria-hidden><i /></span>
+          <span className="hero-coin hero-coin-2" aria-hidden><i /></span>
+          <span className="hero-coin hero-coin-3" aria-hidden><i /></span>
+          <span className="hero-spark hero-spark-1" aria-hidden>✦</span>
+          <span className="hero-spark hero-spark-2" aria-hidden>✦</span>
           <VesselCharacter code="WROJ" size={155} />
         </div>
         <p className="fade-up fade-up-3 mt-5 text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
