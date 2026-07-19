@@ -21,7 +21,8 @@ declare global {
   }
 }
 
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+// 사이트키는 공개 값 — 커밋 안전. env가 있으면 우선(로컬/스테이징 오버라이드용)
+const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "0x4AAAAAAD4xGhAGzw0YTty8";
 const SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 let scriptPromise: Promise<void> | null = null;
