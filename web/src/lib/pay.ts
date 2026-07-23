@@ -29,6 +29,15 @@ export function saveReceipt(orderId: string): void {
   }
 }
 
+/** 서버가 402로 부인한 영수증 폐기 — 낡은 영수증으로 실패 화면에 갇히는 루프 방지 */
+export function clearReceipt(): void {
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* 무시 */
+  }
+}
+
 export function loadReceipt(): PaidReceipt | null {
   try {
     const raw = localStorage.getItem(KEY);

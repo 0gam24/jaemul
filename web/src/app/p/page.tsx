@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { loadResult, type StoredResult } from "@/lib/result-store";
-import { loadReceipt, PRICE_KRW } from "@/lib/pay";
+import { clearReceipt, loadReceipt, PRICE_KRW } from "@/lib/pay";
 import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
 import { PremiumVessel } from "@/components/PremiumVessel";
 import { shareToKakao } from "@/lib/kakao";
@@ -49,6 +49,15 @@ export default function PaidReadingPage() {
       body: JSON.stringify({ input: inputRef.current, orderId: orderIdRef.current, turnstileToken }),
     })
       .then(async (r) => {
+        if (r.status === 402) {
+          // 서버가 이 주문번호를 부인 — 영수증이 낡았거나 위조. 재시도 루프 대신
+          // 영수증을 버리고 결제 화면으로 되돌린다 (진짜 결제자는 confirm이 KV에 새로 기록)
+          clearReceipt();
+          orderIdRef.current = null;
+          track("paid_view", { mode: "stale_receipt" });
+          setState("gate");
+          return;
+        }
         if (!r.ok) throw new Error("failed");
         const data = (await r.json()) as { reading: Reading; vessel: string; mode: string; elements?: Record<string, number> };
         setReading(data.reading);
