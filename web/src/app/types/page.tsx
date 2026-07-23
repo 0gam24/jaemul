@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { VESSEL_TYPES } from "@/lib/vessel-types";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 
 /**
  * 16유형 도감 (바이럴 표면 — "전부 구경하기" 수요)
@@ -32,7 +32,7 @@ export default function TypesPage() {
             href={`/r/${v.slug}?from=types`}
             className="vessel-card card flex flex-col items-center px-3 py-5 active:scale-[0.97]"
           >
-            <VesselCharacter code={v.code} size={84} />
+            <PremiumVessel code={v.code} size={84} />
             <p className="mt-2 text-[16px] font-extrabold">{v.name}</p>
             <p className="mt-0.5 text-center text-[11.5px] leading-snug" style={{ color: "var(--ink-soft)" }}>
               {v.tagline}

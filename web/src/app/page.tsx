@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { VESSEL_TYPES, ELEMENT_COLORS } from "@/lib/vessel-types";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 
 /**
  * 랜딩 — 서버 컴포넌트 + CSS 애니메이션만 사용.
@@ -33,7 +33,7 @@ export default function Home() {
           <span className="hero-coin hero-coin-3" aria-hidden><i /></span>
           <span className="hero-spark hero-spark-1" aria-hidden>✦</span>
           <span className="hero-spark hero-spark-2" aria-hidden>✦</span>
-          <VesselCharacter code="WROJ" size={155} />
+          <PremiumVessel code="WROJ" size={155} priority />
         </div>
         <p className="fade-up fade-up-3 mt-5 text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
           생년월일시 하나로 확인하는 나의 그릇 16유형
@@ -72,7 +72,7 @@ export default function Home() {
         <div className="mt-6 grid grid-cols-4 gap-2">
           {vessels.map((v) => (
             <div key={v.code} data-tip={v.tagline} className="scroll-reveal vessel-card card flex flex-col items-center px-1 py-3">
-              <VesselCharacter code={v.code} size={58} />
+              <PremiumVessel code={v.code} size={58} />
               <span className="mt-1 text-[12.5px] font-bold leading-tight">{v.name}</span>
               <span className="mt-0.5 text-[10.5px]" style={{ color: "var(--ink-faint)" }}>100명 중 {v.per100}명</span>
             </div>

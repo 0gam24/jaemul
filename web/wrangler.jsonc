@@ -42,6 +42,14 @@
 			"dataset": "jaemul_events"
 		}
 	],
+	"kv_namespaces": [
+		{
+			// 결제 영수증(paid:주문번호) + 생성된 풀이 캐시(reading:주문번호).
+			// 저장 내용은 주문번호와 풀이 본문뿐 — 생년월일 0%.
+			"binding": "PAID",
+			"id": "f9cd42a878e647029460d36d4c58aa2e"
+		}
+	],
 	"upload_source_maps": true
 	/**
 	 * Smart Placement

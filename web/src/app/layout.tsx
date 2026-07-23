@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     siteName: "재물그릇",
     type: "website",
     locale: "ko_KR",
-    images: [{ url: "/api/og/home", width: 800, height: 418 }],
+    images: [{ url: "/api/og/home?v=2", width: 800, height: 418 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "재물그릇 — AI 재물운 사주 16유형",
     description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초 — 무료, 회원가입 없음.",
-    images: ["/api/og/home"],
+    images: ["/api/og/home?v=2"],
   },
 };
 

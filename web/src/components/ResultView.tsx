@@ -8,8 +8,9 @@ import type { SajuResult } from "ssaju";
 import { VESSEL_TYPES, type VesselType } from "@/lib/vessel-types";
 import { comboFact, normalizeMbti } from "@/lib/combo";
 import { loadResult } from "@/lib/result-store";
+import { shareToKakao } from "@/lib/kakao";
 import { track } from "@/lib/track";
-import { VesselCharacter } from "./VesselCharacter";
+import { PremiumVessel } from "./PremiumVessel";
 
 const EL_COLOR: Record<string, string> = {
   목: "var(--el-mok)", 화: "var(--el-hwa)", 토: "var(--el-to)", 금: "var(--el-geum)", 수: "var(--el-su)",
@@ -117,7 +118,7 @@ export function ResultView({ vessel, initialMbti }: { vessel: VesselType; initia
             animate={live ? { rotate: [0, -2.5, 2.5, -2.5, 2.5, -1.2, 1.2, 0] } : { rotate: 0 }}
             transition={live ? { delay: T.title - 0.6, duration: 0.55, ease: "easeInOut" } : { duration: 0 }}
           >
-            <VesselCharacter code={vessel.code} size={175} />
+            <PremiumVessel code={vessel.code} size={175} />
           </m.div>
         </m.div>
 
@@ -168,7 +169,8 @@ export function ResultView({ vessel, initialMbti }: { vessel: VesselType; initia
 
         {/* 잠긴 상세 — 질문형 헤더 + 숨쉬는 자물쇠 (패널 채택 4) */}
         <Section title="상세 풀이">
-          <div className="space-y-3">
+          <LockedCalendarTeaser />
+          <div className="mt-3 space-y-3">
             <LockedRow title="돈이 들어오는 달은 언제?" preview="당신의 그릇이 가장 크게 열리는 달은 " />
             <LockedRow title="그릇이 넘치는 시기는?" preview="대운의 흐름상 물이 차오르는 시기는 " />
             <LockedRow title="이 그릇, 새는 구멍은 어디?" preview="물이 새는 방향과 막는 법은 " />
@@ -330,6 +332,47 @@ function MatchCard({ label, code, good }: { label: string; code: keyof typeof VE
   );
 }
 
+/* 블러 캘린더 티저 — 유료 화면(/p)의 12칸 그리드와 같은 형태를 결제 전에 실물로 보여준다.
+   달 숫자는 진짜(이번 달부터 12칸), level 색은 더미 패턴이며 전체를 블러 처리해
+   "받을 것의 형태는 진짜, 값만 가려진" 상태로 만든다 — 가짜 결과 노출 아님. */
+function LockedCalendarTeaser() {
+  // SSR과 클라이언트의 '이번 달'이 다를 수 있어 마운트 후 계산 (hydration 불일치 방지)
+  const [months, setMonths] = useState<number[] | null>(null);
+  useEffect(() => {
+    const now = new Date();
+    setMonths(Array.from({ length: 12 }, (_, i) => ((now.getMonth() + i) % 12) + 1));
+  }, []);
+  if (!months) return null;
+  // 더미 level 배치 — 어차피 블러 뒤라 값 의미 없음. 금색이 드문드문 보이는 밀도만 전달
+  const dummy = [3, 2, 1, 2, 3, 2, 2, 1, 2, 3, 1, 2];
+  return (
+    <div className="card relative overflow-hidden px-4 py-4">
+      <p className="text-[15px] font-bold">내 돈이 들어오는 달 — 12개월 캘린더</p>
+      <div aria-hidden className="pointer-events-none mt-3 grid select-none grid-cols-4 gap-1.5 blur-[6px]">
+        {months.map((mo, i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center rounded-lg px-1 py-2"
+            style={{
+              background: dummy[i] === 3 ? "var(--gold)" : dummy[i] === 2 ? "var(--gold-soft)" : "#f1ece4",
+              color: dummy[i] === 3 ? "#fff" : "var(--ink)",
+            }}
+          >
+            <span className="text-[13px] font-extrabold">{mo}월</span>
+            <span className="mt-0.5 text-[9.5px] leading-tight">●●● ●●</span>
+          </div>
+        ))}
+      </div>
+      <div className="absolute inset-x-0 bottom-0 top-[46px] flex flex-col items-center justify-center">
+        <span className="lock-breathe text-[22px]" aria-label="잠김">🔒</span>
+        <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--ink-soft)" }}>
+          결제하면 내 사주로 다시 계산돼 열려요
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function LockedRow({ title, preview }: { title: string; preview: string }) {
   return (
     <div className="card relative overflow-hidden px-5 py-4">
@@ -444,6 +487,16 @@ function ShareButton({ vessel }: { vessel: VesselType }) {
     track("share_click", { kind: "card" });
     const url = `${location.origin}/r/${vessel.slug}?from=share`;
     const text = `내 재물그릇은 ${vessel.name} — "${vessel.tagline}" 100명 중 ${vessel.per100}명만 나온대요. 너도 확인해봐`;
+    // 1순위 카톡 카드(키 설정 시) — 이미지+버튼이 붙은 카드가 바로 전송된다
+    if (
+      await shareToKakao({
+        title: `내 재물그릇은 ${vessel.name}`,
+        description: `"${vessel.tagline}" — 100명 중 ${vessel.per100}명. 너는 무슨 그릇이야?`,
+        imageUrl: `${location.origin}/api/og/${vessel.slug}?v=2`,
+        url,
+        buttons: [{ title: "내 그릇도 확인 (무료)", url: `${location.origin}/input?from=share` }],
+      })
+    ) return;
     if (navigator.share) {
       try { await navigator.share({ title: "재물그릇", text, url }); return; } catch { /* 취소 */ }
     }

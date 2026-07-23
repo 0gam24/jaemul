@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description: `"${vessel.tagline}" · 내 재물그릇도 무료로 확인해 보세요`,
-      images: [{ url: `/api/og/${vessel.slug}`, width: 1200, height: 1200 }],
+      images: [{ url: `/api/og/${vessel.slug}?v=2`, width: 1200, height: 1200 }],
     },
   };
 }

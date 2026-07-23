@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
 import { vsVerdict } from "@/lib/combo";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 import { VsShareButton } from "@/components/VsShareButton";
 
 type Props = { params: Promise<{ a: string; b: string }> };
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [{ url: `/api/og/${va.slug}?b=${vb.slug}`, width: 1200, height: 1200 }],
+      images: [{ url: `/api/og/${va.slug}?b=${vb.slug}&v=2`, width: 1200, height: 1200 }],
     },
   };
 }
@@ -31,7 +31,7 @@ function Corner({ vessel, label }: { vessel: VesselType; label: string }) {
   return (
     <div className="card flex flex-1 flex-col items-center px-3 py-5">
       <p className="text-[11px] font-semibold" style={{ color: "var(--ink-faint)" }}>{label}</p>
-      <VesselCharacter code={vessel.code} size={96} />
+      <PremiumVessel code={vessel.code} size={96} />
       <p className="mt-1 text-[17px] font-extrabold">{vessel.name}</p>
       <p className="mt-0.5 text-center text-[12px] leading-snug" style={{ color: "var(--ink-soft)" }}>
         {vessel.tagline}

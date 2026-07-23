@@ -5,7 +5,7 @@ import Link from "next/link";
 import { loadTossPayments, ANONYMOUS, type TossPaymentsWidgets } from "@tosspayments/tosspayments-sdk";
 import { loadResult } from "@/lib/result-store";
 import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 import { PRICE_KRW, ORDER_NAME, TOSS_CLIENT_KEY, newOrderId } from "@/lib/pay";
 
 /**
@@ -76,7 +76,7 @@ export default function PayPage() {
   return (
     <div className="px-5 pt-8 pb-10">
       <div className="flex flex-col items-center text-center">
-        {vessel && <VesselCharacter code={vessel.code} size={90} />}
+        {vessel && <PremiumVessel code={vessel.code} size={90} />}
         <h1 className="mt-3 text-[22px] font-extrabold">{ORDER_NAME}</h1>
         <p className="mt-1 text-[14px]" style={{ color: "var(--ink-soft)" }}>
           {vessel?.name} 사주로만 생성되는 세상에 1개짜리

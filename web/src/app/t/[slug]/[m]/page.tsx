@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { vesselBySlug } from "@/lib/vessel-types";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 
 /**
  * 유료 티저 카드 랜딩 (바이럴 — 결제자가 마케터)
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [{ url: `/api/og/${vessel.slug}?m=${month}`, width: 1200, height: 1200 }],
+      images: [{ url: `/api/og/${vessel.slug}?m=${month}&v=2`, width: 1200, height: 1200 }],
     },
   };
 }
@@ -47,7 +47,7 @@ export default async function TeaserPage({ params }: Props) {
         내 돈길 열리는 달
       </p>
       <div className="mt-5">
-        <VesselCharacter code={vessel.code} size={150} />
+        <PremiumVessel code={vessel.code} size={150} />
       </div>
       <p className="mt-4 text-[64px] font-extrabold leading-none" style={{ color: "var(--gold)", fontFamily: "var(--font-display)" }}>
         {month}월

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loadResult } from "@/lib/result-store";
 import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 import { track } from "@/lib/track";
 import type { DailyFortune } from "@/lib/daily";
 
@@ -102,7 +102,7 @@ export default function TodayPage() {
 
         {vessel && (
           <div className="fade-in-up mt-5">
-            <VesselCharacter code={vessel.code} size={120} />
+            <PremiumVessel code={vessel.code} size={120} />
           </div>
         )}
 

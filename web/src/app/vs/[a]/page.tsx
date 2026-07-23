@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VESSEL_TYPES, vesselBySlug } from "@/lib/vessel-types";
-import { VesselCharacter } from "@/components/VesselCharacter";
+import { PremiumVessel } from "@/components/PremiumVessel";
 
 type Props = { params: Promise<{ a: string }> };
 
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [{ url: `/api/og/${vessel.slug}?vs=1`, width: 1200, height: 1200 }],
+      images: [{ url: `/api/og/${vessel.slug}?vs=1&v=2`, width: 1200, height: 1200 }],
     },
   };
 }
@@ -38,7 +38,7 @@ export default async function ChallengePage({ params }: Props) {
         그릇 대결 신청이 도착했어요
       </p>
       <div className="mt-6">
-        <VesselCharacter code={vessel.code} size={135} />
+        <PremiumVessel code={vessel.code} size={135} />
       </div>
       <h1 className="mt-4 text-[26px] font-extrabold">
         상대는 {vessel.name}

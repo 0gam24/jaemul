@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { vesselBySlug } from "@/lib/vessel-types";
 import { normalizeMbti } from "@/lib/combo";
-import { VesselCharacter } from "@/components/VesselCharacter";
 
 /**
  * 공유 카드 이미지 (SPEC §1) — 정방형 1200×1200, ?story=1 → 1080×1920
@@ -35,6 +34,34 @@ async function loadFont(req: Request): Promise<ArrayBuffer> {
   return fontCache;
 }
 
+/** 프리미엄 캐릭터(public/premium, 512px 투명 PNG)를 satori <img>용 data URI로 로드 — 폰트와 동일 경로 */
+const premiumCache = new Map<string, string>();
+async function loadPremium(req: Request, slug: string): Promise<string> {
+  const hit = premiumCache.get(slug);
+  if (hit) return hit;
+  const assetPath = `/premium/${slug}.png`;
+  let buf: ArrayBuffer | null = null;
+  try {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const { env } = getCloudflareContext() as { env?: { ASSETS?: { fetch: (u: URL) => Promise<Response> } } };
+    if (env?.ASSETS) {
+      const res = await env.ASSETS.fetch(new URL(assetPath, req.url));
+      if (res.ok) buf = await res.arrayBuffer();
+    }
+  } catch {
+    /* 로컬 dev — 아래 fs 경로 사용 */
+  }
+  if (!buf) {
+    const { readFile } = await import("node:fs/promises");
+    const path = await import("node:path");
+    const b = await readFile(path.join(process.cwd(), "public", assetPath));
+    buf = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+  }
+  const uri = `data:image/png;base64,${Buffer.from(buf).toString("base64")}`; // nodejs_compat
+  premiumCache.set(slug, uri);
+  return uri;
+}
+
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -48,6 +75,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   // 훅 설계: 이미지="상위 ?%"(호기심 갭) / og:title=정체 / og:description=유형명 미끼 — 3층 역할 분담
   if (slug === "home") {
     const font = await loadFont(req);
+    const jar = await loadPremium(req, "hangari");
     return new ImageResponse(
       (
         <div
@@ -64,7 +92,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
               backgroundImage: "radial-gradient(circle at 50% 62%, rgba(245,195,75,0.50) 0%, rgba(245,195,75,0.18) 40%, rgba(250,247,242,0) 68%)",
             }}
           >
-            <VesselCharacter code="WROJ" size={290} />
+            {/* eslint-disable-next-line @next/next/no-img-element -- satori는 next/image를 렌더할 수 없다 */}
+            <img src={jar} width={290} height={290} alt="" />
             {/* 넘치는 동전 — 항아리 입구에서 튀어오르는 궤적 */}
             {[
               { size: 56, left: 122, top: 34, rot: -12 },
@@ -141,6 +170,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const vsChallenge = sp.get("vs") === "1";
   const duelWith = sp.get("b") ? vesselBySlug(sp.get("b")!) : null;
   const font = await loadFont(req);
+  const art = await loadPremium(req, vessel.slug);
 
   // 대결 도전장 카드 — 받은 사람이 "붙어보자"에 반응하게
   if (vsChallenge) {
@@ -164,7 +194,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
               그릇 대결 도전장
             </div>
             <div style={{ display: "flex", marginTop: 36 }}>
-              <VesselCharacter code={vessel.code} size={400} />
+              <img src={art} width={400} height={400} alt="" />
             </div>
             <div style={{ display: "flex", fontSize: 92, fontWeight: 800, marginTop: 30, letterSpacing: -2 }}>
               {vessel.name}
@@ -189,6 +219,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
   // 대결 결과 카드 — 두 그릇 나란히
   if (duelWith) {
+    const artB = await loadPremium(req, duelWith.slug);
     return new ImageResponse(
       (
         <div
@@ -210,12 +241,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 40, marginTop: 44 }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <VesselCharacter code={vessel.code} size={300} />
+                <img src={art} width={300} height={300} alt="" />
                 <div style={{ display: "flex", fontSize: 56, fontWeight: 800, marginTop: 18 }}>{vessel.name}</div>
               </div>
               <div style={{ display: "flex", fontSize: 64, fontWeight: 800, color: "#a3968a" }}>vs</div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <VesselCharacter code={duelWith.code} size={300} />
+                <img src={artB} width={300} height={300} alt="" />
                 <div style={{ display: "flex", fontSize: 56, fontWeight: 800, marginTop: 18 }}>{duelWith.name}</div>
               </div>
             </div>
@@ -261,7 +292,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
               내 돈길 열리는 달
             </div>
             <div style={{ display: "flex", marginTop: 30 }}>
-              <VesselCharacter code={vessel.code} size={story ? 400 : 360} />
+              <img src={art} width={story ? 400 : 360} height={story ? 400 : 360} alt="" />
             </div>
             <div style={{ display: "flex", alignItems: "baseline", marginTop: 26 }}>
               <div style={{ display: "flex", fontSize: story ? 190 : 170, fontWeight: 800, color: "#d98e32", letterSpacing: -4 }}>
@@ -315,7 +346,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
             나의 재물그릇
           </div>
           <div style={{ display: "flex", marginTop: 40 }}>
-            <VesselCharacter code={vessel.code} size={story ? 430 : 400} />
+            <img src={art} width={story ? 430 : 400} height={story ? 430 : 400} alt="" />
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 22, marginTop: 36 }}>
             <div style={{ display: "flex", fontSize: mbti ? (story ? 92 : 84) : story ? 108 : 100, fontWeight: 800, letterSpacing: -2 }}>
