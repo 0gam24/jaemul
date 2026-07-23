@@ -28,6 +28,7 @@ export function PremiumVessel({
       height={size}
       alt={`${v.name} 캐릭터`}
       priority={priority}
+      className="premium-vessel"
     />
   );
 }
