@@ -290,12 +290,77 @@ export default function PaidReadingPage() {
         </ol>
       </section>
 
-      <p className="mt-8 text-center text-[12px] leading-relaxed" style={{ color: "var(--ink-faint)" }}>
-        이 풀이는 당신 사주로만 생성된 세상에 1개짜리예요.
-        <br />
-        링크를 저장해 두면 언제든 다시 볼 수 있어요.
+      <PaidFinale vessel={vessel} reading={reading} />
+    </div>
+  );
+}
+
+/* 피날레 = 공유 무대. 풀이를 다 읽은 직후가 감정 최고점 — 여기서 이탈(돌아가기)이 아니라
+   자랑(카톡 공유)으로 내보낸다. 결제자의 캡처·전송이 이 상품의 유일한 광고다. */
+function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading }) {
+  const [copied, setCopied] = useState(false);
+  const best = reading.months.find((m) => m.level === 3) ?? reading.months[0];
+  const hook = reading.shareLine ?? `내 돈길 열리는 달은 ${best.month}월`;
+
+  async function onKakao() {
+    track("share_click", { kind: "paid_finale" });
+    const url = `${location.origin}/t/${vessel.slug}/${best.month}?from=finale`;
+    if (
+      await shareToKakao({
+        title: `"${hook}"`,
+        description: `${vessel.name} 사주 풀이가 나온 결과… 돈길 달은 ${best.month}월이래. 너도 궁금하지?`,
+        imageUrl: `${location.origin}/api/og/${vessel.slug}?v=2`,
+        url,
+        buttons: [{ title: "내 사주도 확인하기", url: `${location.origin}/input?from=finale` }],
+      })
+    ) return;
+    const text = `사주가 나한테 한 말: "${hook}"`;
+    if (navigator.share) {
+      try { await navigator.share({ title: "재물그릇", text, url }); return; } catch { /* 취소 */ }
+    }
+    await copyLink(text, url);
+  }
+
+  async function copyLink(text?: string, url?: string) {
+    track("share_click", { kind: "paid_finale_copy" });
+    const u = url ?? `${location.origin}/t/${vessel.slug}/${best.month}?from=finale`;
+    await navigator.clipboard.writeText(text ? `${text}\n${u}` : u);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
+
+  return (
+    <div className="mt-10">
+      <div
+        className="rounded-2xl px-5 py-5 text-center"
+        style={{ background: "linear-gradient(135deg, var(--gold-deep), var(--gold))", color: "#fff" }}
+      >
+        <p className="text-[12px] font-semibold tracking-wider opacity-85">이 풀이, 혼자 보기 아깝죠?</p>
+        <p className="mt-2 text-[17px] font-extrabold leading-snug">&ldquo;{hook}&rdquo;</p>
+        <p className="mt-1.5 text-[12px] opacity-85">친구가 받으면 자기 사주부터 궁금해지는 카드예요</p>
+        <button
+          onClick={onKakao}
+          className="mt-4 w-full rounded-xl px-4 py-3 text-[15px] font-bold transition-transform active:scale-[0.97]"
+          style={{ background: "rgba(255,255,255,0.94)", color: "var(--gold-deep)" }}
+        >
+          {copied ? "복사 완료 — 붙여넣기만 하면 돼요" : "카톡으로 자랑하기"}
+        </button>
+        <button
+          onClick={() => copyLink()}
+          className="mt-2 w-full rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition-transform active:scale-[0.97]"
+          style={{ borderColor: "rgba(255,255,255,0.5)", color: "#fff", background: "transparent" }}
+        >
+          자랑 링크만 복사하기
+        </button>
+      </div>
+      <p className="mt-5 text-center text-[12px] leading-relaxed" style={{ color: "var(--ink-faint)" }}>
+        이 풀이는 당신 사주로만 생성된 세상에 1개짜리 — 결제한 이 기기에서 180일간 다시 열람할 수 있어요.
       </p>
-      <Link href={`/r/${vessel.slug}`} className="btn-primary mt-6">내 그릇 카드로 돌아가기</Link>
+      <p className="mt-3 text-center">
+        <Link href={`/r/${vessel.slug}`} className="text-[13px] underline underline-offset-2" style={{ color: "var(--ink-soft)" }}>
+          내 그릇 카드로 돌아가기
+        </Link>
+      </p>
     </div>
   );
 }
