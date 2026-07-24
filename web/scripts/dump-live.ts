@@ -88,7 +88,8 @@ async function main() {
     `## 행동 3가지`,
     ...reading.actions.map((a) => `- ${a}`),
     ``,
-    `## 지출 구멍 (${reading.caution.length}자)`, reading.caution,
+    `## 궁합 브릿지`, reading.synergyNote ?? "(없음)",
+    ...(reading.caution ? [``, `## 지출 구멍 (v1 캐시)`, reading.caution] : []),
   ].join("\n");
   console.log(md);
 }

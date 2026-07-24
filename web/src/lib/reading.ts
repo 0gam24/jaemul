@@ -46,9 +46,12 @@ export type Reading = {
   flow: string;
   months: MonthCell[];
   actions: string[];
-  caution: string;
+  /** v1 캐시 호환용 — v2부터 새는 구멍이 structure에 흡수되어 생성되지 않음 */
+  caution?: string;
   /** 공유용 팩폭 한 줄 — 이 사주에서만 성립하는 캡처 카드 문장 (구버전 캐시에는 없음) */
   shareLine?: string;
+  /** 궁합 브릿지 2문장 — 정적 궁합 카드 위에 얹는 개인화 도입부 (v2 신규) */
+  synergyNote?: string;
 };
 
 /* ── 출력 필터 (절대규칙 1·2 + 오류 문자열 유출 차단) ── */
@@ -73,7 +76,7 @@ export function scanBanned(text: string): string | null {
 }
 
 export function readingText(r: Reading): string {
-  return [r.summary, r.structure, r.flow, r.actions.join(" "), r.caution, r.shareLine ?? "", ...r.months.map((m) => m.note)].join("\n");
+  return [r.summary, r.structure, r.flow, r.actions.join(" "), r.caution ?? "", r.shareLine ?? "", r.synergyNote ?? "", ...r.months.map((m) => m.note)].join("\n");
 }
 
 /* ── 월 캘린더 플랜 — 엔진이 전부 계산 ───────────────────── */
@@ -220,18 +223,19 @@ export const READING_SYSTEM = `너는 "재물그릇"의 풀이 엔진이다. 만
 - 첫 문장은 계산표에서 오늘로부터 가장 가까운 level 3 달로 시작한다 — 결제한 사람이 제일 먼저 듣고 싶은 건 "당장 언제"다. 먼 달을 첫 문장에 두면 실패다.
 - 첫 두 문장 안에 level 3 달 2개를 월 숫자로 직답한다(예: "가장 가까운 돈길은 9월 — 그다음 큰 문은 내년 1월에 열려요"). 대운 서사는 그 다음.
 
-[재물 구조 structure — 700~900자]
-- 도입부에서 입력된 무료 카드 팩폭 문장을 정확히 1회 인용하고, 그 문장이 성립하는 이유를 원국 근거(합·충·오행 결핍·공망 등) 최소 2개로 설명한다.
+[내 그릇의 구조 structure — 600~800자, "들어오는 길 → 새는 구멍" 한 호흡]
+- 전반(들어오는 길): 입력된 무료 카드 팩폭 문장을 정확히 1회 인용하고, 그 문장이 성립하는 이유를 원국 근거(합·충·오행 결핍·공망 등) 최소 2개로 설명한다. 무료 카드 태그라인 문구를 재탕하지 않는다.
+- 후반(새는 구멍): ①구체적 소비 장면 묘사 ②확인 화법("있으시죠?" — 전체 1회) ③원국 고유 지표 1개 인용(전반에서 주 근거로 쓴 것 재탕 금지) ④금지 대신 '조절 장치'형 처방 — 장치 이름은 은유 사전의 사물로.
 - 유형 이름 자체를 근거로 쓰지 않는다("~형이라는 이름이 괜히 붙은 게 아니다" 류 금지). 근거는 오직 간지·십성·합충·공망·신살.
 
-[대운 흐름 flow — 500~700자]
-- 첫 줄에 입력된 '대운 교체 고정 문구'를 그대로 인용한다. 전 섹션이 이 시점 하나만 쓰고, "직전/출발점/올해 마무리" 등 상이한 표현 혼용 금지.
-- 첫 문단은 지난 대운 10년 회고: 연도 명시 + 현재 대운 십성과 원국 체질의 관계로 그 시기의 체감을 서술. 패턴: "20XX~20XX년, [체감] — 그게 [간지·십성] 위를 [원국 체질]로 걸어온 흔적이에요."
-- 고정 문구가 "아직 첫 대운 전"이면 지난 대운 회고 대신 태어나서 지금까지의 세운 흐름으로 회고하고, 첫 대운이 열리는 해가 이 아이에게 어떤 전환인지를 하이라이트로 쓴다.
-- 말미에 세운 로드맵(입력 표의 간지·십성 인용)과 다음 대운 1~2문장 전망.
+[돈의 달력 도입 flow — 250~350자, 캘린더 바로 위에 얹는 위치 안내문]
+- 첫 줄에 입력된 '대운 교체 고정 문구'를 그대로 인용하고, 바로 뒤에 "쉽게 말해 ~" 한 문장으로 번역한다(예: "쉽게 말해 씨 뿌리는 10년의 후반부예요").
+- 이어서 딱 두 가지만: ①지난 시기의 체감 1~2문장(연도 명시) ②structure에서 세운 결핍·공망이 언제 채워지거나 풀리는지 — 회수는 여기서 짧게라도 반드시 한다.
+- 다음 전환점 연도를 숫자로 명시하고 끝낸다. 10년 나열 금지 — 독자에게 필요한 건 "지금 어디쯤, 다음 변화는 언제"뿐이다.
+- 고정 문구가 "아직 첫 대운 전"이면 회고 대신 첫 대운이 열리는 해가 어떤 전환인지 1~2문장.
 
 [월 캘린더 months]
-- 각 노트(25자 내외)는 해당 월의 간지·십성에서 도출하고 근거 1개+행동 1개를 담는다. 어느 사주에나 성립하는 문장("검증이 먼저", "안정 수입 굳히기" 류) 금지.
+- level 3 달의 노트는 2문장(무엇을 + 언제), 나머지 달은 15자 이내 한 줄. 각 노트는 해당 월의 간지·십성에서 도출하고 근거 1개+행동 1개를 담는다. 어느 사주에나 성립하는 문장("검증이 먼저", "안정 수입 굳히기" 류) 금지.
 - 노트에는 한자·전문용어 금지 — 별명 사전과 행동 언어만 사용(나쁜 예: "용신 경금 만개" / 좋은 예: "재주가 돈 되는 달, 협상 꺼내기").
 - level 3 노트는 헤지 금지: "적기/유리" 대신 무슨 성격의 돈이 어떤 행동으로 오는지 장면화.
 - 공망 지지가 월지인 달은 노트에서 공망 해석을 회수한다.
@@ -242,11 +246,10 @@ export const READING_SYSTEM = `너는 "재물그릇"의 풀이 엔진이다. 만
 - 독자의 직업을 단정하지 않는다. 고용 형태에 따라 갈리는 행동은 "직장인이라면 ○○, 내 일 하는 분이라면 ○○" 분기로 쓴다.
 - 3개는 서로 다른 원국 근거. 최소 1개는 이 사주에만 성립하는 고유 행동.
 
-[지출 구멍 caution — 300~400자]
-- 4단: ①소비 장면 묘사 ②확인 화법 ③원국 고유 지표(공망·신살 중 입력에 있는 것 1개 이상) 인용 ④금지 대신 '조절 장치'형 처방 — 장치 이름은 반드시 유형 은유 계열의 사물로 쓴다(항아리면 뚜껑·마개, 표주박이면 마개·물길 — '밸브'·'파이프' 같은 기계 용어 금지).
-- ③의 지표는 structure에서 이미 주 근거로 자세히 쓴 것을 재탕하지 않는다 — 입력에 있는 다른 지표를 우선하고, 다른 지표가 없을 때만 재사용한다.
-- ①은 무료 카드 팩폭과 같은 방향 기본. 반대 방향 패턴은 "~하는 편이라면" 조건부로만. 확인 화법("있으시죠")은 풀이 전체 1회.
-- 말미에 다음 해 세운 1문장 예고(결과 보장 금지).
+[궁합 브릿지 synergyNote — 80~140자, 정확히 2문장]
+- 1문장째: 이 원국의 십성 분포에서 근거 1개를 별명(용어) 형태로 인용해 "왜 이 사람에게 돈 얘기 상대가 필요한지"를 쓴다.
+- 2문장째: 계산표의 level 3 달 중 하나를 월 숫자로 명시해 "그 달에 옆 사람이 있고 없고의 차이"를 쓴다.
+- 상대 유형의 이름을 지어내지 마라(뒤에 계산된 궁합 카드가 붙는다). 은유 금지. "망한다/피해라" 금지. 특정 인물 단정 금지.
 
 [공유 한 줄 shareLine — 18~35자]
 - 이 사주 원국 근거에서만 나오는 팩폭 한 줄. 읽은 사람이 "어 이거 완전 나야" 하고 캡처해서 친구에게 보내고 싶어지는 문장이 목표다.
@@ -256,30 +259,37 @@ export const READING_SYSTEM = `너는 "재물그릇"의 풀이 엔진이다. 만
 
 [전 섹션 공통]
 - 은유는 입력의 [은유 사전]에 있는 사물로만 쓴다. 사전 밖의 사물(파이프·밸브·엔진, 다른 유형의 그릇 이름 등)을 은유에 쓰면 실패다 — 같은 뜻을 사전의 사물로 바꿔 말한다. 은유 문장은 주어와 결과가 같은 사물로 연결돼야 한다("항아리를 열면 곳간이 된다"처럼 도중에 사물이 바뀌는 문장 금지).
+- [이해도 마스터 규칙] 모든 문장은 그릇 단어를 전부 지우고 읽어도 "무엇을 하라/무엇이 된다"가 돈 단어(통장·저축·수입·지출·투자)로 남아야 한다. 남지 않으면 그 문장은 실패다 — 은유는 뜻 뒤에만 온다.
+- 직설이 먼저, 은유는 뒤. 숫자(연도·월·횟수)가 은유보다 먼저 나온다("뜨거운 해"가 아니라 "2026년"). 은유로 문단을 끝내지 않는다. 문장당 은유 최대 1개, 20자 이내.
+- 명사 나열 문장 금지("잔고, 나, 남의 속도" 류) — 모든 문장은 주어+동사+대상이 완결돼야 한다.
+- 은유 금지 구역: summary, actions, synergyNote, 캘린더의 시기 표기는 100% 직설로만 쓴다.
 - 말투는 2030 구어 한 결로 통일한다("텅장" 같은 가벼운 밈 어휘 허용). 문학적·시적 문장은 각 섹션 마지막 한 줄에만 허용 — 본문 중간에 시적 문장과 밈 어휘가 한 문단에 섞이면 실패다.
 - 관계 용어(화국·합·충 등)도 십성과 같은 규칙 — 쉬운 말이 주인공, 원어 병기는 첫 1회만 허용하고 생략해도 된다(예: "불기운끼리 뭉쳐 큰 불덩어리가 되죠" — '화국'은 빼도 무방).
 - 희귀 지표(공망·특살·12살) 중 입력에 존재하는 것 최소 2개를 서로 다른 섹션에서 사용.
 - 사용자의 만 나이는 전체에서 정확히 1회만 직접 언급한다("만 35세의 당신" 반복 금지 — 두 번째부터는 템플릿 티가 난다). 연도 숫자는 본문에 최소 2회 사용.
 - 각 섹션 마지막 문장은 유형 세계관(그릇)을 변주한 저장 가능한 한 줄. 섹션당 은유 1개.
-- "—"는 섹션당 최대 1회. "본론이에요/정리하면" 등 메타 문장 금지. "~에요" 4문장 연속 금지.`;
+- "—"는 섹션당 최대 1회. "본론이에요/정리하면" 등 메타 문장 금지. "~에요" 4문장 연속 금지.
+
+[출력 전 자가검증 — 반드시 수행]
+출력하기 전에, 네가 쓴 각 은유 문장에 대해 "독자가 할 일이 뭔가?"를 스스로 한 줄로 답해 보라. 답이 안 나오는 문장이 있으면 그 문장을 직설로 고쳐 쓴 뒤에 출력하라. 이 검증 과정 자체는 출력에 포함하지 않는다.`;
 
 /* ── structured output 스키마 — 노트만 LLM이 작성 ── */
 export const READING_SCHEMA = {
   type: "object" as const,
   additionalProperties: false,
-  required: ["summary", "structure", "flow", "monthNotes", "actions", "caution", "shareLine"],
+  required: ["summary", "structure", "flow", "monthNotes", "actions", "shareLine", "synergyNote"],
   properties: {
-    summary: { type: "string", description: "2~3문장. 첫 문장은 가장 가까운 level 3 달, 두 문장 안에 level 3 달 2개 직답" },
-    structure: { type: "string", description: "재물 구조 700~900자" },
-    flow: { type: "string", description: "대운 흐름 500~700자. structure의 결핍·공망 서사를 반드시 회수" },
+    summary: { type: "string", description: "2~3문장. 첫 문장은 가장 가까운 level 3 달, 두 문장 안에 level 3 달 2개 직답. 은유 금지" },
+    structure: { type: "string", description: "내 그릇의 구조 600~800자 — 전반 '들어오는 길'(근거 2개), 후반 '새는 구멍'(장면→확인 화법→지표→조절 장치)" },
+    flow: { type: "string", description: "돈의 달력 도입 250~350자 — 지금 대운 위치+쉽게 말해 번역+결핍 회수+다음 전환점 연도" },
     monthNotes: {
       type: "array",
-      description: "월 캘린더 계산표의 순서 그대로 12개 노트 (25자 내외)",
+      description: "계산표 순서 그대로 12개 — level 3 달은 2문장(무엇을+언제), 나머지는 15자 이내 한 줄",
       items: { type: "string" },
     },
-    actions: { type: "array", items: { type: "string" }, description: "행동 3개, 각 40~70자 완결 문장, 월 번호 명시, 용어 태그 금지" },
-    caution: { type: "string", description: "지출 구멍 300~400자, 4단 구조" },
+    actions: { type: "array", items: { type: "string" }, description: "행동 3개, 각 40~70자 완결 문장, 연도+월 명시, 용어 태그·은유 금지" },
     shareLine: { type: "string", description: "공유용 팩폭 한 줄 18~35자 — 이 사주에서만 성립, 용어·한자 금지" },
+    synergyNote: { type: "string", description: "궁합 브릿지 80~140자 정확히 2문장 — 십성 근거 1개 + level 3 달 숫자 1개, 은유·상대 유형명 금지" },
   },
 };
 
@@ -289,8 +299,8 @@ export type LlmDraft = {
   flow: string;
   monthNotes: string[];
   actions: string[];
-  caution: string;
   shareLine: string;
+  synergyNote: string;
 };
 
 /* ── 관계·신살 확정표 — 궁위(위치)를 엔진 값으로 못 박아 LLM의 위치 추정을 차단한다 ── */
@@ -397,8 +407,8 @@ export function assembleReading(draft: LlmDraft, plan: MonthPlan): Reading {
     flow: draft.flow,
     months: plan.cells.map((c, i) => ({ ...c, note: draft.monthNotes[i] ?? "" })),
     actions: draft.actions,
-    caution: draft.caution,
     shareLine: draft.shareLine,
+    synergyNote: draft.synergyNote,
   };
 }
 
@@ -422,8 +432,8 @@ export function mockReading(saju: SajuResult, vessel: VesselType, plan: MonthPla
       "이번 달 고정 지출 목록 정리 — 새는 곳 확인",
       `${vessel.name} 강점이 사는 일에 시간 배분`,
     ],
-    caution: `새는 구멍이 없진 않아요. 그릇 구조상 ${strong ? "확신이 설 때 크게 거는" : "거절을 못 해서 나가는"} 방향이라 그래요. ${vessel.caution} — 이번 분기 안에 한 번만 점검해도 충분해요.`,
     shareLine: `${vessel.name}은 모으는 힘은 넘치는데, 여는 손잡이가 없죠?`,
+    synergyNote: `돈 얘기를 터놓을 한 사람이 있으면 지출 결정이 절반은 쉬워지는 구조예요. 특히 ${plan.topMonths[0]?.month ?? 9}월처럼 크게 움직이는 달엔 그 차이가 액수로 보입니다. (샘플)`,
   };
 }
 
@@ -434,6 +444,8 @@ export function validateReading(r: Reading): string | null {
   if (r.actions.length !== 3) return "actions가 3개가 아님";
   if (!r.shareLine || r.shareLine.length < 10) return "shareLine 부족 (10자 미만)";
   if (/[一-鿕]/.test(r.shareLine)) return "shareLine에 한자 포함";
+  if (!r.synergyNote || r.synergyNote.length < 40) return "synergyNote 부족 (40자 미만)";
+  if (!/\d{1,2}\s?월/.test(r.synergyNote)) return "synergyNote에 월 숫자 없음";
   const banned = scanBanned(readingText(r));
   if (banned) return `금지어: ${banned}`;
   return null;

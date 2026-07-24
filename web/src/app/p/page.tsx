@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { loadResult, type StoredResult } from "@/lib/result-store";
 import { clearReceipt, loadReceipt, PRICE_KRW } from "@/lib/pay";
-import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
+import { VESSEL_TYPES, vesselBySlug, type VesselType } from "@/lib/vessel-types";
+import { SYNERGY_COPY } from "@/lib/synergy";
+import { vsVerdict } from "@/lib/combo";
 import { PremiumVessel } from "@/components/PremiumVessel";
 import { shareToKakao } from "@/lib/kakao";
 import { track } from "@/lib/track";
@@ -213,6 +215,7 @@ export default function PaidReadingPage() {
         <p className="mt-2 text-[13px] font-semibold tracking-wide" style={{ color: "var(--gold-deep)" }}>
           {vessel.name} 상세 풀이
         </p>
+        <DdayChip months={reading.months} />
         <p className="card mt-3 w-full px-5 py-4 text-[15px] font-medium leading-relaxed">{reading.summary}</p>
         {reading.shareLine && <ShareLineCard vessel={vessel} shareLine={reading.shareLine} months={reading.months} />}
         {mode === "mock" && (
@@ -224,20 +227,25 @@ export default function PaidReadingPage() {
 
       <section className="fade-in-up mt-8" style={stagger(1)}>
         <h2 className="mb-3 text-[13px] font-bold tracking-wider" style={{ color: "var(--ink-faint)" }}>
-          당신의 재물 구조
+          내 그릇의 구조 — 들어오는 길과 새는 구멍
         </h2>
         {elements && <ElementBars elements={elements} />}
         <p className="whitespace-pre-line text-[15px] leading-relaxed">{reading.structure}</p>
       </section>
-      <div className="fade-in-up" style={stagger(2)}>
-        <PaidSection title="대운으로 보는 큰 흐름">{reading.flow}</PaidSection>
-      </div>
 
-      {/* 롤링 12칸 캘린더 — 결제한 달부터 앞으로 12개월, 숫자는 전부 엔진 계산값 */}
+      {/* v1 캐시 호환 — 새 생성분은 새는 구멍이 structure에 흡수되어 이 섹션이 없다 */}
+      {reading.caution && (
+        <div className="fade-in-up" style={stagger(2)}>
+          <PaidSection title="조심할 지출 구멍">{reading.caution}</PaidSection>
+        </div>
+      )}
+
+      {/* 돈의 달력 — 대운 위치 안내문(flow)이 캘린더 바로 위에 얹힌다 */}
       <section className="fade-in-up mt-8" style={stagger(3)}>
         <h2 className="mb-1 text-[13px] font-bold tracking-wider" style={{ color: "var(--ink-faint)" }}>
-          돈이 들어오는 달 — 앞으로 12개월
+          돈의 달력 — 지금 10년과 앞으로 12개월
         </h2>
+        <p className="mb-4 whitespace-pre-line text-[15px] leading-relaxed">{reading.flow}</p>
         <p className="mb-3 text-[11px]" style={{ color: "var(--ink-faint)" }}>
           <span style={{ color: "var(--gold)" }}>■</span> 움직이는 달 ·{" "}
           <span style={{ color: "var(--gold-soft)" }}>■</span> 다지는 달 ·{" "}
@@ -271,12 +279,7 @@ export default function PaidReadingPage() {
         <TeaserShareButton vessel={vessel} months={reading.months} />
       </section>
 
-      {/* 지출 구멍을 행동보다 앞에 — 가장 실용적인 섹션을 묻어두지 않고, 마무리는 '할 일'로 닫는다 */}
-      <div className="fade-in-up" style={stagger(4)}>
-        <PaidSection title="조심할 지출 구멍">{reading.caution}</PaidSection>
-      </div>
-
-      <section className="fade-in-up mt-8" style={stagger(5)}>
+      <section className="fade-in-up mt-8" style={stagger(4)}>
         <h2 className="mb-3 text-[13px] font-bold tracking-wider" style={{ color: "var(--ink-faint)" }}>
           다음 행동 3가지
         </h2>
@@ -290,17 +293,39 @@ export default function PaidReadingPage() {
         </ol>
       </section>
 
+      <div className="fade-in-up" style={stagger(5)}>
+        <SynergySection vessel={vessel} reading={reading} />
+      </div>
+
       <PaidFinale vessel={vessel} reading={reading} />
     </div>
   );
 }
 
-/* 피날레 = 공유 무대. 풀이를 다 읽은 직후가 감정 최고점 — 여기서 이탈(돌아가기)이 아니라
-   자랑(카톡 공유)으로 내보낸다. 결제자의 캡처·전송이 이 상품의 유일한 광고다. */
+/* 피날레 = 반쪽 궁합 카드. 풀이를 다 읽은 직후가 감정 최고점 — 여기서 이탈(돌아가기)이
+   아니라 '상대 소환'으로 내보낸다. 미완성(빈칸) 카드는 받은 사람만 채울 수 있다. */
 function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading }) {
   const [copied, setCopied] = useState(false);
   const best = reading.months.find((m) => m.level === 3) ?? reading.months[0];
   const hook = reading.shareLine ?? `내 돈길 열리는 달은 ${best.month}월`;
+
+  async function onAsk() {
+    track("share_click", { kind: "finale_ask" });
+    const url = `${location.origin}/vs/${vessel.slug}?from=finale`;
+    if (
+      await shareToKakao({
+        title: `나 ${vessel.name}(100명 중 ${vessel.per100}명)이래 — 너는 무슨 그릇이야?`,
+        description: `나랑 돈이 통하는 그릇이 따로 있대. 생년월일만 넣으면 무료로 나와`,
+        imageUrl: `${location.origin}/api/og/${vessel.slug}?vs=1&v=2`,
+        url,
+        buttons: [{ title: "내 그릇 확인하기 (무료)", url }],
+      })
+    ) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: "재물그릇", text: `나 ${vessel.name}이래 — 너는 무슨 그릇이야?`, url }); return; } catch { /* 취소 */ }
+    }
+    await copyLink(`나 ${vessel.name}이래 — 너는 무슨 그릇이야?`, url);
+  }
 
   async function onKakao() {
     track("share_click", { kind: "paid_finale" });
@@ -335,22 +360,32 @@ function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading 
         className="rounded-2xl px-5 py-5 text-center"
         style={{ background: "linear-gradient(135deg, var(--gold-deep), var(--gold))", color: "#fff" }}
       >
-        <p className="text-[12px] font-semibold tracking-wider opacity-85">이 풀이, 혼자 보기 아깝죠?</p>
-        <p className="mt-2 text-[17px] font-extrabold leading-snug">&ldquo;{hook}&rdquo;</p>
-        <p className="mt-1.5 text-[12px] opacity-85">친구가 받으면 자기 사주부터 궁금해지는 카드예요</p>
+        <p className="text-[12px] font-semibold tracking-wider opacity-85">이 풀이, 아직 반쪽이에요</p>
+        <div className="mt-3 flex items-center justify-center gap-3">
+          <PremiumVessel code={vessel.code} size={64} />
+          <span className="text-[20px] font-extrabold opacity-70">+</span>
+          <span
+            className="flex items-center justify-center rounded-full text-[28px] font-extrabold"
+            style={{ width: 64, height: 64, background: "rgba(255,255,255,0.25)" }}
+          >
+            ?
+          </span>
+        </div>
+        <p className="mt-3 text-[15px] font-bold leading-snug">옆자리 그 사람은 무슨 그릇일까요?</p>
+        <p className="mt-1 text-[12px] opacity-85">상대가 자기 생년월일을 넣어야만 궁합이 완성돼요</p>
         <button
-          onClick={onKakao}
+          onClick={onAsk}
           className="mt-4 w-full rounded-xl px-4 py-3 text-[15px] font-bold transition-transform active:scale-[0.97]"
           style={{ background: "rgba(255,255,255,0.94)", color: "var(--gold-deep)" }}
         >
-          {copied ? "복사 완료 — 붙여넣기만 하면 돼요" : "카톡으로 자랑하기"}
+          {copied ? "복사 완료 — 붙여넣기만 하면 돼요" : "너는 무슨 그릇이야? 물어보기"}
         </button>
         <button
-          onClick={() => copyLink()}
+          onClick={onKakao}
           className="mt-2 w-full rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition-transform active:scale-[0.97]"
           style={{ borderColor: "rgba(255,255,255,0.5)", color: "#fff", background: "transparent" }}
         >
-          자랑 링크만 복사하기
+          내 결과 자랑하기 — &ldquo;{hook.slice(0, 18)}{hook.length > 18 ? "…" : ""}&rdquo;
         </button>
       </div>
       <p className="mt-5 text-center text-[12px] leading-relaxed" style={{ color: "var(--ink-faint)" }}>
@@ -362,6 +397,145 @@ function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading 
         </Link>
       </p>
     </div>
+  );
+}
+
+/* D-데이 칩 — 엔진 계산값으로 "가장 가까운 돈길 달까지 D-N". AI 비용 0, 결제 3초 안의 첫 보상 */
+function DdayChip({ months }: { months: Reading["months"] }) {
+  const best = months.find((m) => m.level === 3);
+  if (!best) return null;
+  const target = new Date(best.year, best.month - 1, 1);
+  const days = Math.ceil((target.getTime() - Date.now()) / 86400000);
+  if (days <= 0) return (
+    <span className="mt-3 rounded-full px-4 py-1.5 text-[13px] font-bold" style={{ background: "var(--gold)", color: "#fff" }}>
+      지금이 돈길 달 — {best.month}월
+    </span>
+  );
+  return (
+    <span className="mt-3 rounded-full px-4 py-1.5 text-[13px] font-bold" style={{ background: "var(--gold)", color: "#fff" }}>
+      가장 가까운 돈길 달까지 D-{days}
+    </span>
+  );
+}
+
+/* 궁합 섹션 — "돈이 통하는 사람, 돈 얘기가 꼬이는 사람"
+   뼈대는 정적 카피(synergy.ts, 비용 0), AI는 브릿지 2문장(synergyNote)만.
+   행동 뒤·피날레 앞 = 개인 가치 수취가 끝난 '선물' 위치라 공유 전환이 가장 높다. */
+function SynergySection({ vessel, reading }: { vessel: VesselType; reading: Reading }) {
+  const [picked, setPicked] = useState<VesselType | null>(null);
+  const copy = SYNERGY_COPY[vessel.code];
+  const good = VESSEL_TYPES[vessel.matchGood];
+  const bad = VESSEL_TYPES[vessel.matchBad];
+  const best = reading.months.find((m) => m.level === 3) ?? reading.months[0];
+
+  async function onAsk() {
+    track("share_click", { kind: "synergy_ask" });
+    const url = `${location.origin}/vs/${vessel.slug}?from=ask`;
+    if (
+      await shareToKakao({
+        title: `나 ${vessel.name}(100명 중 ${vessel.per100}명)이래 — 너는 무슨 그릇이야?`,
+        description: `나랑 돈이 통하는 그릇이 따로 있대. 우리 맞는지 보게, 생년월일만 넣으면 무료야`,
+        imageUrl: `${location.origin}/api/og/${vessel.slug}?vs=1&v=2`,
+        url,
+        buttons: [{ title: "내 그릇 확인하기 (무료)", url: `${location.origin}/vs/${vessel.slug}?from=ask` }],
+      })
+    ) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: "재물그릇", text: `나 ${vessel.name}이래 — 너는 무슨 그릇이야?`, url }); return; } catch { /* 취소 */ }
+    }
+    await navigator.clipboard.writeText(`나 ${vessel.name}이래 — 너는 무슨 그릇이야?\n${url}`);
+  }
+
+  return (
+    <section className="mt-8">
+      <h2 className="mb-1 text-[13px] font-bold tracking-wider" style={{ color: "var(--ink-faint)" }}>
+        돈이 통하는 사람, 돈 얘기가 꼬이는 사람
+      </h2>
+      <p className="mb-3 text-[12px]" style={{ color: "var(--ink-faint)" }}>돈 궁합은 성격 궁합과 달라요</p>
+
+      {reading.synergyNote && (
+        <p className="mb-4 text-[15px] leading-relaxed">{reading.synergyNote}</p>
+      )}
+
+      {/* 시너지 카드 */}
+      <div className="card px-4 py-4">
+        <div className="flex items-center gap-3">
+          <PremiumVessel code={vessel.code} size={52} />
+          <span className="text-[18px]" style={{ color: "var(--gold-deep)" }}>+</span>
+          <PremiumVessel code={good.code} size={52} />
+          <div className="ml-1">
+            <p className="text-[11px] font-bold" style={{ color: "var(--gold-deep)" }}>돈이 통하는 그릇</p>
+            <p className="text-[16px] font-extrabold">{good.name}</p>
+          </div>
+        </div>
+        <p className="mt-3 text-[14px] leading-relaxed">{copy.good.roles} {copy.good.why}</p>
+        <p className="mt-2 rounded-lg px-3 py-2 text-[13px] leading-relaxed" style={{ background: "var(--bg)" }}>
+          <b>함께 하면:</b> {copy.good.action}
+        </p>
+      </div>
+
+      {/* 마찰 카드 */}
+      <div className="card mt-3 px-4 py-4">
+        <div className="flex items-center gap-3">
+          <PremiumVessel code={vessel.code} size={52} />
+          <span className="text-[18px]" style={{ color: "var(--ink-faint)" }}>≠</span>
+          <PremiumVessel code={bad.code} size={52} />
+          <div className="ml-1">
+            <p className="text-[11px] font-bold" style={{ color: "var(--ink-faint)" }}>돈 얘기가 꼬이는 그릇</p>
+            <p className="text-[16px] font-extrabold">{bad.name}</p>
+          </div>
+        </div>
+        <p className="mt-3 text-[14px] leading-relaxed">{copy.bad.scene} {copy.bad.reframe}</p>
+        <p className="mt-2 rounded-lg px-3 py-2 text-[13px] leading-relaxed" style={{ background: "var(--bg)" }}>
+          <b>이렇게 풀어요:</b> {copy.bad.fix}
+        </p>
+      </div>
+
+      {/* 연인·부부 훅 + CTA */}
+      <div className="mt-4 rounded-2xl px-5 py-4 text-center" style={{ background: "linear-gradient(135deg, var(--gold-deep), var(--gold))", color: "#fff" }}>
+        <p className="text-[14px] font-bold leading-relaxed">
+          지금 옆에 있는 사람의 그릇을 모른다면, 이 페이지는 반쪽이에요.
+        </p>
+        <p className="mt-1 text-[12px] opacity-85">그 사람이 무슨 그릇이냐에 따라 위의 처방이 달라져요 · {best.month}월이 오기 전에</p>
+        <button
+          onClick={onAsk}
+          className="mt-3 w-full rounded-xl px-4 py-3 text-[15px] font-bold transition-transform active:scale-[0.97]"
+          style={{ background: "rgba(255,255,255,0.94)", color: "var(--gold-deep)" }}
+        >
+          너는 무슨 그릇이야? 물어보기
+        </button>
+      </div>
+
+      {/* 즉석 확인 — 상대 유형을 이미 아는 독자용, 엔진 판정이라 비용 0 */}
+      <details className="mt-3">
+        <summary className="cursor-pointer text-[13px] underline underline-offset-2" style={{ color: "var(--ink-soft)" }}>
+          상대 유형을 이미 안다면 — 바로 대보기
+        </summary>
+        <div className="mt-2 grid grid-cols-4 gap-1.5">
+          {Object.values(VESSEL_TYPES).map((v) => (
+            <button
+              key={v.code}
+              onClick={() => setPicked(v)}
+              className="rounded-lg px-1 py-2 text-[11px] font-semibold"
+              style={{
+                background: picked?.code === v.code ? "var(--gold)" : "var(--card)",
+                color: picked?.code === v.code ? "#fff" : "var(--ink)",
+              }}
+            >
+              {v.name}
+            </button>
+          ))}
+        </div>
+        {picked && (
+          <div className="card mt-2 px-4 py-3">
+            <p className="text-[14px] font-bold">{vsVerdict(vessel, picked).title}</p>
+            <p className="mt-1 text-[13px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              {vsVerdict(vessel, picked).detail}
+            </p>
+          </div>
+        )}
+      </details>
+    </section>
   );
 }
 

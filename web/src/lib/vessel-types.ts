@@ -20,6 +20,8 @@ import type { SajuResult } from "ssaju";
  * 3. 공통 문장 틀에 키워드만 갈아끼우지 않는다 — 유형마다 문장 구조가 달라도 된다.
  * 4. 톤은 가벼운 구어 한 결. 시적 문장은 한 카피에 한 번만.
  * 5. 기계·설비 용어(밸브·파이프·엔진) 금지 — 전통 그릇 세계관과 충돌한다.
+ * 7. [마스터 규칙] 모든 문장은 그릇 단어를 전부 지우고 읽어도 '무엇을 하라/무엇이 된다'가
+ *    돈 단어(통장·저축·수입·지출·투자)로 남아야 한다. 남지 않으면 게시 불가 — 은유는 뜻 뒤에만.
  * 6. imagery는 유료 풀이 LLM에도 "이 사물로만 은유하라"로 주입된다 —
  *    여기 목록이 곧 그 유형의 은유 어휘 전부라고 생각하고 채울 것.
  */
@@ -49,10 +51,10 @@ export type VesselType = {
 export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
   SROP: {
     code: "SROP", slug: "gamasot", name: "가마솥형",
-    tagline: "크게 걸고 크게 끓인다",
+    tagline: "크게 걸어서 크게 버는 그릇",
     fact: "남들이 아끼는 동안 판을 키워서 버는 스타일, 맞죠?",
     strengths: ["돈이 되는 판을 알아보는 눈", "벌어들이는 스케일 자체가 큼"],
-    caution: "불이 좋을 때 한 국자 덜어 두면, 다음 판의 밑천이 됩니다",
+    caution: "벌이가 잘 될 때 번 돈의 일부를 미리 떼어 두세요 — 그 한 국자가 다음 판을 키우는 밑천이 됩니다",
     per100: 1, matchGood: "WrOJ", matchBad: "SRXJ", element: "화",
     imagery: "가마솥·아궁이·장작불·국자·한소끔 끓임",
   },
@@ -61,16 +63,16 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     tagline: "늦게 차지만 절대 안 샌다",
     fact: "한 번 번 돈은 웬만해선 안 나가는 타입이네요",
     strengths: ["꾸준함이 복리로 쌓이는 구조", "위기에 강한 맷집"],
-    caution: "달궈지기까지가 느릴 뿐 — 데워지기 시작한 해에 속도가 붙습니다",
+    caution: "지금 돈이 안 모이는 건 못 버는 게 아니라 예열 중인 것 — 수입이 한번 붙기 시작하면, 모이는 속도는 남들보다 빨라집니다",
     per100: 3, matchGood: "WrXP", matchBad: "SrXP", element: "금",
     imagery: "무쇠솥·달굼·잔열·솥뚜껑·묵직함",
   },
   SRXP: {
     code: "SRXP", slug: "notgeureut", name: "놋그릇형",
-    tagline: "닦을수록 빛나는 큰 그릇",
+    tagline: "정리만 해주면 크게 빛나는 그릇",
     fact: "기회는 계속 오는데 정리를 미루는 편이죠?",
     strengths: ["들어오는 돈의 단위가 큼", "귀인이 돈길을 열어주는 상"],
-    caution: "쓰임새를 정해두고 닦아주면, 광은 저절로 납니다",
+    caution: "들어오는 돈마다 갈 곳(생활비·저축·비상금)을 정해 통장을 나눠 두세요 — 그게 놋그릇 닦기라서, 정리만 해도 광이 납니다",
     per100: 6, matchGood: "WrOP", matchBad: "WrXJ", element: "금",
     imagery: "놋그릇·놋쇠·광·닦기·귀한 손님상",
   },
@@ -85,7 +87,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
   },
   SrOP: {
     code: "SrOP", slug: "durebak", name: "두레박형",
-    tagline: "퍼 올리는 힘은 최고",
+    tagline: "돈 퍼 올리는 힘은 최고",
     fact: "버는 재주는 확실한데 담아둘 곳을 안 정했죠?",
     strengths: ["어디서든 돈을 길어 올리는 실행력", "부업·사이드잡 재능"],
     caution: "길어 온 물을 모아 둘 큰 물통 하나만 정하면, 흐름이 재산이 됩니다",
@@ -95,9 +97,9 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
   SrOJ: {
     code: "SrOJ", slug: "ttukbaegi", name: "뚝배기형",
     tagline: "천천히 데워져 오래 안 식는다",
-    fact: "화려하진 않아도 잔고가 뒤로 갈수록 두꺼워지는 타입",
+    fact: "한 방은 없어도, 통장 잔액이 해가 갈수록 불어나는 타입",
     strengths: ["은근하게 오래 가는 수입 구조", "유행 안 타는 안정감"],
-    caution: "남의 속도와 비교하지 않는 해에, 뚝배기는 가장 뜨겁습니다",
+    caution: "친구가 먼저 버는 것 같아 조급해져도, 하던 저축·투자를 바꾸지 마세요 — 뚝배기는 늦게 끓는 대신 제일 오래 뜨겁습니다",
     per100: 11, matchGood: "WRXP", matchBad: "SRXP", element: "토",
     imagery: "뚝배기·뭉근한 불·잔열·온기·구수함",
   },
@@ -115,7 +117,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     tagline: "마르지 않는 잔잔한 샘",
     fact: "크게 벌 욕심보다 안 마르는 게 중요한 타입이네요",
     strengths: ["끊기지 않는 현금 흐름", "무리하지 않는 재무 감각"],
-    caution: "샘 주변을 조금만 넓혀도, 고이는 양이 달라집니다",
+    caution: "이자 한 푼, 부업 하나라도 돈 들어오는 길을 하나만 더 만들어 보세요 — 샘 주변이 넓어지면 고이는 돈이 달라집니다",
     per100: 13, matchGood: "WROP", matchBad: "SROP", element: "수",
     imagery: "옹달샘·샘물·바닥·고임·물길",
   },
@@ -151,7 +153,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     tagline: "묵혀야 제맛이 드는 그릇",
     fact: "빨리 버는 것보다 오래 두는 게 체질에 맞죠?",
     strengths: ["오래 묵힐수록 강해지는 체질", "시간이 편이 되는 구조"],
-    caution: "뚜껑을 자주 열면 장맛이 안 듭니다 — 조급한 해만 넘기면 됩니다",
+    caution: "적금·투자를 중간에 자꾸 깨면 장맛이 안 듭니다 — 조급해지는 시기에 한 번만 안 깨고 버티면 됩니다",
     per100: 9, matchGood: "SrOP", matchBad: "SrXP", element: "목",
     imagery: "장독·뚜껑·숙성·장맛·볕과 바람",
   },
@@ -160,7 +162,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     tagline: "돈을 데우는 재주가 있는 그릇",
     fact: "내 돈보다 남의 돈 불려주는 재주가 먼저 보이는 타입",
     strengths: ["돈 되는 아이디어 제조기", "사람을 통해 재물이 붙는 상"],
-    caution: "불씨 값부터 챙기세요 — 재주값을 청구하기 시작한 해부터 화로가 커집니다",
+    caution: "남의 돈 불려줬으면 내 수고비부터 챙기세요 — 재주를 공짜로 쓰지 않기 시작한 해부터 화로가 커집니다",
     per100: 4, matchGood: "SRXP", matchBad: "WROJ", element: "화",
     imagery: "화로·숯·불씨·온기·부채질",
   },
@@ -169,7 +171,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     tagline: "작지만 매일 채워지는 그릇",
     fact: "티끌 모아 태산을 진짜로 실행 중인 타입이네요",
     strengths: ["매일 채우는 성실 루틴", "작아도 마르지 않는 구조"],
-    caution: "종지를 둘, 셋으로 늘려 보세요 — 어느새 한 상이 차려집니다",
+    caution: "적금이든 부업이든, 매일 조금씩 채워지는 그릇을 하나씩 더 만들어 보세요 — 종지가 둘, 셋이 되면 어느새 한 상입니다",
     per100: 10, matchGood: "SROP", matchBad: "SRXP", element: "목",
     imagery: "종지·간장·한 술·상차림·옹기종기",
   },
