@@ -33,10 +33,28 @@ const JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
 const SDK_SRC = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
 
 let sdkPromise: Promise<boolean> | null = null;
+let runtimeKey: string | null | undefined; // undefined=미조회, null=서버에도 없음
 
-function loadSdk(): Promise<boolean> {
-  if (!JS_KEY) return Promise.resolve(false);
-  if (window.Kakao?.isInitialized()) return Promise.resolve(true);
+/**
+ * 키 해석 2단: 빌드 타임(NEXT_PUBLIC_*) → 런타임(/api/pub-config, 워커 시크릿).
+ * CI 빌드 환경에 키가 안 실려도 카톡 공유가 살아있게 하는 안전망.
+ */
+async function resolveKey(): Promise<string | null> {
+  if (JS_KEY) return JS_KEY;
+  if (runtimeKey !== undefined) return runtimeKey;
+  try {
+    const r = await fetch("/api/pub-config");
+    runtimeKey = ((await r.json()) as { kakaoJsKey?: string | null }).kakaoJsKey ?? null;
+  } catch {
+    runtimeKey = null;
+  }
+  return runtimeKey;
+}
+
+async function loadSdk(): Promise<boolean> {
+  const key = await resolveKey();
+  if (!key) return false;
+  if (window.Kakao?.isInitialized()) return true;
   if (sdkPromise) return sdkPromise;
   sdkPromise = new Promise((resolve) => {
     const s = document.createElement("script");
@@ -44,7 +62,7 @@ function loadSdk(): Promise<boolean> {
     s.async = true;
     s.onload = () => {
       try {
-        if (window.Kakao && !window.Kakao.isInitialized()) window.Kakao.init(JS_KEY);
+        if (window.Kakao && !window.Kakao.isInitialized()) window.Kakao.init(key);
         resolve(window.Kakao?.isInitialized() ?? false);
       } catch {
         resolve(false);
