@@ -11,6 +11,17 @@ import type { SajuResult } from "ssaju";
  *
  * 카피 원칙 (CLAUDE.md 절대규칙 1): 불행 단정 금지. caution은 반드시
  * 리프레이밍 톤("~하면 ~된다"의 행동 제안형)으로만 쓴다.
+ *
+ * ── 카피 가이드 (전 유형 공통 — 유형 추가·수정 시 반드시 지킬 것) ──
+ * 1. 한 유형의 카피는 그 유형의 imagery 사물 안에서만 은유한다.
+ *    다른 유형의 그릇 이름(항아리·장독·두레박…)을 빌려 쓰는 순간 세계관이 깨진다.
+ * 2. 주어-결과 연결: "A를 하면 A가 좋아진다"로 닫는다. "항아리를 열면 곳간이 된다"처럼
+ *    주어가 도중에 다른 사물로 바뀌는 문장 금지. (금고→은행 같은 명시적 '승급' 은유만 예외)
+ * 3. 공통 문장 틀에 키워드만 갈아끼우지 않는다 — 유형마다 문장 구조가 달라도 된다.
+ * 4. 톤은 가벼운 구어 한 결. 시적 문장은 한 카피에 한 번만.
+ * 5. 기계·설비 용어(밸브·파이프·엔진) 금지 — 전통 그릇 세계관과 충돌한다.
+ * 6. imagery는 유료 풀이 LLM에도 "이 사물로만 은유하라"로 주입된다 —
+ *    여기 목록이 곧 그 유형의 은유 어휘 전부라고 생각하고 채울 것.
  */
 
 export type VesselCode =
@@ -31,6 +42,8 @@ export type VesselType = {
   matchGood: VesselCode;  // 잘 맞는 그릇
   matchBad: VesselCode;   // 상극 그릇 (궁합 티저용)
   element: "목" | "화" | "토" | "금" | "수"; // 카드 색 테마
+  /** 이 유형의 은유 사물 사전 — 카피·유료 풀이가 은유에 쓸 수 있는 어휘 전부 */
+  imagery: string;
 };
 
 export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
@@ -41,6 +54,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["돈이 되는 판을 알아보는 눈", "벌어들이는 스케일 자체가 큼"],
     caution: "불이 좋을 때 한 국자 덜어 두면, 다음 판의 밑천이 됩니다",
     per100: 1, matchGood: "WrOJ", matchBad: "SRXJ", element: "화",
+    imagery: "가마솥·아궁이·장작불·국자·한소끔 끓임",
   },
   SROJ: {
     code: "SROJ", slug: "musoesot", name: "무쇠솥형",
@@ -49,6 +63,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["꾸준함이 복리로 쌓이는 구조", "위기에 강한 맷집"],
     caution: "달궈지기까지가 느릴 뿐 — 데워지기 시작한 해에 속도가 붙습니다",
     per100: 3, matchGood: "WrXP", matchBad: "SrXP", element: "금",
+    imagery: "무쇠솥·달굼·잔열·솥뚜껑·묵직함",
   },
   SRXP: {
     code: "SRXP", slug: "notgeureut", name: "놋그릇형",
@@ -57,6 +72,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["들어오는 돈의 단위가 큼", "귀인이 돈길을 열어주는 상"],
     caution: "쓰임새를 정해두고 닦아주면, 광은 저절로 납니다",
     per100: 6, matchGood: "WrOP", matchBad: "WrXJ", element: "금",
+    imagery: "놋그릇·놋쇠·광·닦기·귀한 손님상",
   },
   SRXJ: {
     code: "SRXJ", slug: "geumgo", name: "금고형",
@@ -65,14 +81,16 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["지키는 힘 하나는 16유형 중 최강", "충동 지출 면역"],
     caution: "가끔 문을 열어 굴려주면, 금고가 아니라 은행이 됩니다",
     per100: 10, matchGood: "SrOP", matchBad: "SROP", element: "토",
+    imagery: "금고·문·잠금장치·귀중품·은행(승급 은유)",
   },
   SrOP: {
     code: "SrOP", slug: "durebak", name: "두레박형",
     tagline: "퍼 올리는 힘은 최고",
     fact: "버는 재주는 확실한데 담아둘 곳을 안 정했죠?",
     strengths: ["어디서든 돈을 길어 올리는 실행력", "부업·사이드잡 재능"],
-    caution: "길어 온 물을 부을 항아리 하나만 정하면 흐름이 재산이 됩니다",
+    caution: "길어 온 물을 모아 둘 큰 물통 하나만 정하면, 흐름이 재산이 됩니다",
     per100: 4, matchGood: "SRXJ", matchBad: "WROP", element: "수",
+    imagery: "두레박·우물·줄·긷기·큰 물통",
   },
   SrOJ: {
     code: "SrOJ", slug: "ttukbaegi", name: "뚝배기형",
@@ -81,6 +99,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["은근하게 오래 가는 수입 구조", "유행 안 타는 안정감"],
     caution: "남의 속도와 비교하지 않는 해에, 뚝배기는 가장 뜨겁습니다",
     per100: 11, matchGood: "WRXP", matchBad: "SRXP", element: "토",
+    imagery: "뚝배기·뭉근한 불·잔열·온기·구수함",
   },
   SrXP: {
     code: "SrXP", slug: "pyojubak", name: "표주박형",
@@ -89,6 +108,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["돈이 도는 길목을 타는 감각", "쓸 때 제대로 쓰는 화통함"],
     caution: "표주박은 원래 퍼 마시는 그릇 — 담는 통을 따로 두면 완성됩니다",
     per100: 6, matchGood: "SROJ", matchBad: "WRXJ", element: "수",
+    imagery: "표주박·마개·박 넝쿨·물 따르기·담는 통",
   },
   SrXJ: {
     code: "SrXJ", slug: "ongdalsaem", name: "옹달샘형",
@@ -97,6 +117,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["끊기지 않는 현금 흐름", "무리하지 않는 재무 감각"],
     caution: "샘 주변을 조금만 넓혀도, 고이는 양이 달라집니다",
     per100: 13, matchGood: "WROP", matchBad: "SROP", element: "수",
+    imagery: "옹달샘·샘물·바닥·고임·물길",
   },
   WROP: {
     code: "WROP", slug: "sokuri", name: "소쿠리형",
@@ -105,22 +126,25 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["큰돈을 다루는 자리와 인연", "돈의 흐름을 읽는 시야"],
     caution: "소쿠리에 비닐 한 장 — 자동이체 하나만 깔면 새던 게 담깁니다",
     per100: 3, matchGood: "SrXJ", matchBad: "SrOP", element: "목",
+    imagery: "소쿠리·틈·비닐 한 장·채반·받침",
   },
   WROJ: {
     code: "WROJ", slug: "hangari", name: "항아리형",
     tagline: "모으는 건 천재, 여는 게 문제",
     fact: "적금 깨는 날보다 붓는 날이 훨씬 마음 편하죠?",
     strengths: ["저축 체질 — 모이는 속도가 남다름", "목돈 만드는 인내심"],
-    caution: "1년에 한 번, 항아리를 열어 굴리는 날을 정하면 곳간이 됩니다",
+    caution: "1년에 한 번 뚜껑 열어 굴리는 날을 정하면 — 항아리가 해마다 한 뼘씩 커집니다",
     per100: 6, matchGood: "SROP", matchBad: "SrXP", element: "토",
+    imagery: "항아리·뚜껑·마개·가득 참·굽",
   },
   WRXP: {
     code: "WRXP", slug: "yuribyeong", name: "유리병형",
     tagline: "안이 다 보이는 투명한 그릇",
     fact: "돈 문제만큼은 숨기는 걸 못 하는 타입이네요",
     strengths: ["투명한 돈 관리 — 신용이 자산", "같이 벌 사람이 모이는 상"],
-    caution: "유리는 깨지는 게 아니라 부딪히는 자리를 피하는 것 — 변동 큰 판만 걸러도 됩니다",
+    caution: "유리병은 부딪힐 자리만 피하면 오래갑니다 — 변동 큰 판만 걸러도 충분해요",
     per100: 5, matchGood: "SrOJ", matchBad: "SROJ", element: "금",
+    imagery: "유리병·투명함·코르크 마개·빛·부딪힘",
   },
   WRXJ: {
     code: "WRXJ", slug: "jangdok", name: "장독형",
@@ -129,22 +153,25 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["오래 묵힐수록 강해지는 체질", "시간이 편이 되는 구조"],
     caution: "뚜껑을 자주 열면 장맛이 안 듭니다 — 조급한 해만 넘기면 됩니다",
     per100: 9, matchGood: "SrOP", matchBad: "SrXP", element: "목",
+    imagery: "장독·뚜껑·숙성·장맛·볕과 바람",
   },
   WrOP: {
     code: "WrOP", slug: "hwaro", name: "화로형",
     tagline: "돈을 데우는 재주가 있는 그릇",
     fact: "내 돈보다 남의 돈 불려주는 재주가 먼저 보이는 타입",
     strengths: ["돈 되는 아이디어 제조기", "사람을 통해 재물이 붙는 상"],
-    caution: "불씨의 몫을 먼저 떼는 습관 — 재주값을 청구하는 해에 불이 커집니다",
+    caution: "불씨 값부터 챙기세요 — 재주값을 청구하기 시작한 해부터 화로가 커집니다",
     per100: 4, matchGood: "SRXP", matchBad: "WROJ", element: "화",
+    imagery: "화로·숯·불씨·온기·부채질",
   },
   WrOJ: {
     code: "WrOJ", slug: "jongji", name: "종지형",
     tagline: "작지만 매일 채워지는 그릇",
     fact: "티끌 모아 태산을 진짜로 실행 중인 타입이네요",
     strengths: ["매일 채우는 성실 루틴", "작아도 마르지 않는 구조"],
-    caution: "종지가 둘, 셋 늘어나는 구조를 만들면 — 상이 달라집니다",
+    caution: "종지를 둘, 셋으로 늘려 보세요 — 어느새 한 상이 차려집니다",
     per100: 10, matchGood: "SROP", matchBad: "SRXP", element: "목",
+    imagery: "종지·간장·한 술·상차림·옹기종기",
   },
   WrXP: {
     code: "WrXP", slug: "daejeop", name: "대접형",
@@ -153,6 +180,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["베푼 만큼 돌아오는 인복 재물", "돈보다 큰 신뢰 자산"],
     caution: "내 몫의 대접을 맨 먼저 채우고 나누면, 인심도 재산도 남습니다",
     per100: 4, matchGood: "SROJ", matchBad: "SrOP", element: "화",
+    imagery: "대접·국물·한 그릇·나눔·손님상",
   },
   WrXJ: {
     code: "WrXJ", slug: "dalhangari", name: "달항아리형",
@@ -161,6 +189,7 @@ export const VESSEL_TYPES: Record<VesselCode, VesselType> = {
     strengths: ["돈으로 못 사는 감각 자산", "때가 오면 값이 뛰는 희소성"],
     caution: "감각에 가격표를 붙이는 순간부터 — 달항아리는 국보가 됩니다",
     per100: 6, matchGood: "SRXP", matchBad: "WROP", element: "금",
+    imagery: "달항아리·여백·백자·안목·국보(승급 은유)",
   },
 };
 
