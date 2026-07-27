@@ -87,14 +87,14 @@ export default function Home() {
             2026 丙午
           </p>
           <p className="mt-2 text-[19px] font-bold leading-snug">
-            60년 만의 붉은 말의 해,
+            60년 만에 온 붉은 말의 해 —
             <br />
-            돈의 기운이 크게 움직이는 해
+            돈이 빨리 돌고, 빨리 새는 해
           </p>
           <p className="mt-3 text-[14px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-            움직임이 큰 해일수록, 내 그릇의 모양을
+            빠른 해엔 그릇을 아는 사람부터 담아가요.
             <br />
-            먼저 아는 사람이 유리해요
+            내 그릇 확인은 10초, 무료예요
           </p>
         </div>
       </section>
