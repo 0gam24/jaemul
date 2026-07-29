@@ -96,6 +96,18 @@ export default function PayPage() {
         </ul>
       </div>
 
+      {/* 제공 방식·이용 기간 고지 — 전자상거래법 + PG 심사 요건: 결제 전에 소비자가 확인 가능해야 함 */}
+      <div className="card mt-3 px-5 py-3.5 text-[13px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+        <p>
+          <b style={{ color: "var(--ink)" }}>제공 방식·시점</b> — 결제 완료 즉시 자동 생성, 1~2분 내
+          열람 (결제일 당일 제공 완료)
+        </p>
+        <p className="mt-1">
+          <b style={{ color: "var(--ink)" }}>재열람 기간</b> — 결제일부터 180일간, 결제한 기기에서
+          횟수 제한 없이 재열람
+        </p>
+      </div>
+
       {/* 토스 결제 UI */}
       <div className="card mt-4 overflow-hidden">
         <div id="payment-method" />

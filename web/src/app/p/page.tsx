@@ -125,7 +125,9 @@ export default function PaidReadingPage() {
           {PRICE_KRW.toLocaleString()}원으로 열기
         </Link>
         <p className="mt-3 text-[12px] leading-relaxed" style={{ color: "var(--ink-faint)" }}>
-          결제 후 1~2분 정성껏 생성 · 실패 시 추가 결제 없이 다시 시도
+          결제 즉시 생성, 1~2분 내 열람 · 결제일부터 180일간 재열람 가능
+          <br />
+          생성 실패 시 추가 결제 없이 다시 시도
         </p>
         <Link
           href={vessel ? `/r/${vessel.slug}` : "/input"}
