@@ -256,7 +256,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
                 backgroundColor: "#f7e9d4", color: "#b26e1b", fontSize: 44, fontWeight: 800,
               }}
             >
-              결과는 링크에서 — 너도 붙어볼래?
+              결과는 링크에서. 너도 붙어볼래?
             </div>
           </div>
           <div style={{ display: "flex", marginTop: 56, fontSize: 34, color: "#a3968a" }}>

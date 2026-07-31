@@ -6,8 +6,8 @@ import "./globals.css";
 // 셀프호스팅 (M4) — public/fonts/pretendard, 브라우저는 화면에 필요한 subset woff2만 받는다
 const FONT_CSS = "/fonts/pretendard/pretendardvariable-dynamic-subset.css";
 
-const TITLE = "재물그릇 — 내 재물그릇, 100명 중 몇 명일까";
-const DESC = "생년월일시로 확인하는 나의 재물그릇 16유형. AI가 전원 다 봐드립니다 — 무료.";
+const TITLE = "재물그릇 | 내 재물그릇, 100명 중 몇 명일까";
+const DESC = "생년월일시로 확인하는 나의 재물그릇 16유형. AI가 전원 다 봐드려요, 무료로.";
 
 export const metadata: Metadata = {
   // 절대 URL 기준점 — 없으면 OG 이미지가 localhost로 생성돼 카톡 미리보기가 깨진다
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   description: DESC,
   openGraph: {
     // 카톡 미리보기 3층 설계: 이미지=훅("상위 ?%") / title=정체 / description=유형명 미끼
-    title: "재물그릇 — AI 재물운 사주 16유형",
-    description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초 — 무료, 회원가입 없음.",
+    title: "재물그릇 | AI 재물운 사주 16유형",
+    description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초면 나와요. 무료, 회원가입 없음.",
     siteName: "재물그릇",
     type: "website",
     locale: "ko_KR",
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "재물그릇 — AI 재물운 사주 16유형",
-    description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초 — 무료, 회원가입 없음.",
+    title: "재물그릇 | AI 재물운 사주 16유형",
+    description: "옹달샘형? 가마솥형? 금고형? 생년월일만 넣으면 10초면 나와요. 무료, 회원가입 없음.",
     images: ["/api/og/home?v=2"],
   },
 };

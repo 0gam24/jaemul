@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "개인정보처리방침 — 재물그릇" };
+export const metadata: Metadata = { title: "개인정보처리방침 | 재물그릇" };
 
 /** 개인정보처리방침 (M3) — "생년월일 서버 미저장" 구조를 그대로 문서화 */
 export default function PrivacyPage() {

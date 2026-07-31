@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "이용약관 — 재물그릇" };
+export const metadata: Metadata = { title: "이용약관 | 재물그릇" };
 
 /** 이용약관 (M3) — 전자상거래법·콘텐츠산업진흥법 기준 최소 구성 */
 export default function TermsPage() {

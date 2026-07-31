@@ -87,7 +87,7 @@ export default function Home() {
             2026 丙午
           </p>
           <p className="mt-2 text-[19px] font-bold leading-snug">
-            60년 만에 온 붉은 말의 해 —
+            60년 만에 온 붉은 말의 해
             <br />
             돈이 빨리 돌고, 빨리 새는 해
           </p>

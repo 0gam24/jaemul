@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const vessel = vesselBySlug(slug);
   if (!vessel) return {};
-  const title = `${vessel.name} — 100명 중 ${vessel.per100}명의 재물그릇`;
+  const title = `${vessel.name}, 100명 중 ${vessel.per100}명의 재물그릇`;
   return {
     title,
     description: `"${vessel.tagline}" · 내 재물그릇도 무료로 확인해 보세요`,

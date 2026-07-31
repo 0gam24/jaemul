@@ -42,7 +42,7 @@ export default function TodayPage() {
     if (!fortune) return;
     track("share_click", { kind: "daily" });
     const url = `${location.origin}/today?from=daily`;
-    const text = `오늘 내 재물운: ${fortune.levelName} — 너는 어떤 날인지 확인해봐`;
+    const text = `오늘 내 재물운은 ${fortune.levelName}! 너는 어떤 날인지 확인해봐`;
     if (navigator.share) {
       try { await navigator.share({ title: "오늘의 재물운", text, url }); return; } catch { /* 취소 */ }
     }
@@ -132,12 +132,12 @@ export default function TodayPage() {
         {fortune.nextGoodInDays !== null && (
           <p className="mt-4 text-[13px]" style={{ color: "var(--ink-soft)" }}>
             다음 <b style={{ color: "var(--gold-deep)" }}>돈길 열리는 날</b>은{" "}
-            {fortune.nextGoodInDays === 1 ? "바로 내일이에요" : `${fortune.nextGoodInDays}일 뒤예요`} — 내일 또 확인해 보세요
+            {fortune.nextGoodInDays === 1 ? "바로 내일이에요" : `${fortune.nextGoodInDays}일 뒤예요`}. 내일 또 확인해 보세요
           </p>
         )}
 
         <button className="btn-primary mt-7" onClick={onShare}>
-          {copied ? "복사했어요 — 붙여넣기만 하세요" : "오늘 운세 공유하기"}
+          {copied ? "복사했어요! 붙여넣기만 하세요" : "오늘 운세 공유하기"}
         </button>
         {vessel && (
           <Link href={`/r/${vessel.slug}`} className="mt-4 text-[13px] underline underline-offset-2" style={{ color: "var(--ink-soft)" }}>

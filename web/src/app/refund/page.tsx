@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "환불정책 — 재물그릇" };
+export const metadata: Metadata = { title: "환불정책 | 재물그릇" };
 
 /** 환불정책 (M3) — 전자상거래법 제17조 디지털콘텐츠 기준 */
 export default function RefundPage() {

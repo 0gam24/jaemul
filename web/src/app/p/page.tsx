@@ -224,7 +224,7 @@ export default function PaidReadingPage() {
         {reading.shareLine && <ShareLineCard vessel={vessel} shareLine={reading.shareLine} months={reading.months} />}
         {mode === "mock" && (
           <p className="mt-2 text-[11px]" style={{ color: "var(--ink-faint)" }}>
-            샘플 모드 — API 키 연결 시 실제 풀이가 생성됩니다
+            샘플 모드입니다. API 키를 연결하면 실제 풀이가 생성됩니다
           </p>
         )}
       </div>

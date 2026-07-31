@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const vb = vesselBySlug(b);
   if (!va || !vb) return {};
   const verdict = vsVerdict(va, vb);
-  const title = `${va.name} vs ${vb.name} — ${verdict.title}`;
+  const title = `${va.name} vs ${vb.name}, ${verdict.title}`;
   const description = "그릇 대결 결과 · 내 재물그릇도 무료로 확인해 보세요";
   return {
     title,

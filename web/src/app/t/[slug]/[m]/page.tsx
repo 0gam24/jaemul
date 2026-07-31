@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const vessel = vesselBySlug(slug);
   const month = parseMonth(m);
   if (!vessel || !month) return {};
-  const title = `내 돈길 열리는 달은 ${month}월 — 네 달은 언제야?`;
+  const title = `내 돈길 열리는 달은 ${month}월! 네 달은 언제야?`;
   const description = `${vessel.name}의 사주로 계산한 결과예요. 내 그릇은 무료 확인 · 돈길 달은 상세 풀이에서`;
   return {
     title,
@@ -60,7 +60,7 @@ export default async function TeaserPage({ params }: Props) {
       <div className="card mt-6 w-full px-5 py-4 text-[15px] font-semibold">
         네 돈길 달은 언제야?
         <span className="mt-1 block text-[13px] font-normal" style={{ color: "var(--ink-faint)" }}>
-          내 그릇은 무료로 바로 나와요 — 돈길 달은 상세 풀이에서 열려요
+          내 그릇은 무료로 바로 나와요. 돈길 달은 상세 풀이에서 열려요
         </span>
       </div>
       <Link href="/input" className="btn-primary mt-6">

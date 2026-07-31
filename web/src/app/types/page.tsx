@@ -9,7 +9,7 @@ import { PremiumVessel } from "@/components/PremiumVessel";
  */
 
 export const metadata: Metadata = {
-  title: "16가지 재물그릇 도감 — 나는 어떤 그릇일까",
+  title: "16가지 재물그릇 도감, 나는 어떤 그릇일까",
   description: "실제 만세력 계산으로 나오는 16가지 재물그릇을 한눈에. 내 그릇은 무료로 확인",
 };
 
@@ -22,7 +22,7 @@ export default function TypesPage() {
       </p>
       <h1 className="mt-2 text-center text-[24px] font-extrabold">16가지 그릇, 전부 구경하기</h1>
       <p className="mt-1 text-center text-[13px]" style={{ color: "var(--ink-faint)" }}>
-        희귀한 그릇부터 — 숫자는 8만 사주 분포 실측값
+        희귀한 그릇부터 보여드려요. 숫자는 8만 사주 분포 실측값이에요
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
@@ -44,7 +44,7 @@ export default function TypesPage() {
         ))}
       </div>
 
-      <Link href="/input" className="btn-primary mt-8">내 그릇은 뭘까 — 무료 확인</Link>
+      <Link href="/input" className="btn-primary mt-8">내 그릇은 뭘까? 무료로 확인</Link>
     </div>
   );
 }

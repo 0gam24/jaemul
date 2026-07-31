@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { a } = await params;
   const vessel = vesselBySlug(a);
   if (!vessel) return {};
-  const title = `${vessel.name}이 그릇 대결을 걸었어요 — 재물그릇`;
+  const title = `${vessel.name}이 그릇 대결을 걸었어요 | 재물그릇`;
   const description = "생년월일시만 넣으면 10초 만에 대결 결과가 나와요 · 무료";
   return {
     title,

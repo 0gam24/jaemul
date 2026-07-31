@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const vessel = vesselBySlug(slug);
   const mbti = normalizeMbti(t);
   if (!vessel || !mbti) return {};
-  const title = `${vessel.name} × ${mbti} — 나의 재물그릇 조합`;
+  const title = `${vessel.name} × ${mbti}, 나의 재물그릇 조합`;
   return {
     title,
     description: `"${vessel.tagline}" · 내 재물그릇도 무료로 확인해 보세요`,

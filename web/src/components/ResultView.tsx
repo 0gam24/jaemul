@@ -181,7 +181,7 @@ export function ResultView({ vessel, initialMbti }: { vessel: VesselType; initia
               className="mt-3 block rounded-xl border-[1.5px] px-4 py-3 text-center text-[15px] font-bold transition-transform active:scale-[0.97]"
               style={{ borderColor: "var(--gold)", color: "var(--gold-deep)", background: "var(--card)" }}
             >
-              상세 풀이 열어보기 — 990원
+              990원으로 상세 풀이 열어보기
             </Link>
           ) : (
             <p className="mt-3 text-center text-[13px]" style={{ color: "var(--ink-faint)" }}>
@@ -347,7 +347,7 @@ function LockedCalendarTeaser() {
   const dummy = [3, 2, 1, 2, 3, 2, 2, 1, 2, 3, 1, 2];
   return (
     <div className="card relative overflow-hidden px-4 py-4">
-      <p className="text-[15px] font-bold">내 돈이 들어오는 달 — 12개월 캘린더</p>
+      <p className="text-[15px] font-bold">내 돈이 들어오는 달, 12개월 캘린더</p>
       <div aria-hidden className="pointer-events-none mt-3 grid select-none grid-cols-4 gap-1.5 blur-[6px]">
         {months.map((mo, i) => (
           <div
@@ -392,7 +392,7 @@ function VsChallengeButton({ vessel }: { vessel: VesselType }) {
   async function onChallenge() {
     track("share_click", { kind: "vs" });
     const url = `${location.origin}/vs/${vessel.slug}?from=vs`;
-    const text = `내 재물그릇은 ${vessel.name}. 네 그릇이랑 대결 붙어보자 — 생년월일만 넣으면 10초면 나와`;
+    const text = `내 재물그릇은 ${vessel.name}. 네 그릇이랑 대결 붙어보자! 생년월일만 넣으면 10초면 나와`;
     if (navigator.share) {
       try { await navigator.share({ title: "그릇 대결", text, url }); return; } catch { /* 취소 */ }
     }
@@ -427,7 +427,7 @@ function ComboSection({ vessel, initialMbti }: { vessel: VesselType; initialMbti
     if (!combo) return;
     track("share_click", { kind: "combo" });
     const url = `${location.origin}/r/${vessel.slug}/c/${mbti}?from=share`;
-    const text = `나는 ${combo.title} — 이 조합, 흔치 않대요. 너는 무슨 조합이야?`;
+    const text = `나는 ${combo.title}! 이 조합, 흔치 않대요. 너는 무슨 조합이야?`;
     if (navigator.share) {
       try { await navigator.share({ title: "재물그릇 조합", text, url }); return; } catch { /* 취소 */ }
     }
@@ -473,7 +473,7 @@ function ComboSection({ vessel, initialMbti }: { vessel: VesselType; initialMbti
             className="mt-4 w-full rounded-xl border-[1.5px] px-4 py-3 text-[15px] font-bold transition-transform active:scale-[0.97]"
             style={{ borderColor: "var(--gold)", color: "var(--gold-deep)", background: "var(--card)" }}
           >
-            {copied ? "복사했어요 — 붙여넣기만 하세요" : "조합 카드 공유하기"}
+            {copied ? "복사했어요! 붙여넣기만 하세요" : "조합 카드 공유하기"}
           </button>
         </m.div>
       )}
@@ -486,12 +486,12 @@ function ShareButton({ vessel }: { vessel: VesselType }) {
   async function onShare() {
     track("share_click", { kind: "card" });
     const url = `${location.origin}/r/${vessel.slug}?from=share`;
-    const text = `내 재물그릇은 ${vessel.name} — "${vessel.tagline}" 100명 중 ${vessel.per100}명만 나온대요. 너도 확인해봐`;
+    const text = `내 재물그릇은 ${vessel.name}, "${vessel.tagline}". 100명 중 ${vessel.per100}명만 나온대요. 너도 확인해봐`;
     // 1순위 카톡 카드(키 설정 시) — 이미지+버튼이 붙은 카드가 바로 전송된다
     if (
       await shareToKakao({
         title: `내 재물그릇은 ${vessel.name}`,
-        description: `"${vessel.tagline}" — 100명 중 ${vessel.per100}명. 너는 무슨 그릇이야?`,
+        description: `"${vessel.tagline}". 100명 중 ${vessel.per100}명. 너는 무슨 그릇이야?`,
         imageUrl: `${location.origin}/api/og/${vessel.slug}?v=2`,
         url,
         buttons: [{ title: "내 그릇도 확인 (무료)", url: `${location.origin}/input?from=share` }],
@@ -506,7 +506,7 @@ function ShareButton({ vessel }: { vessel: VesselType }) {
   }
   return (
     <button className="btn-primary mt-8" onClick={onShare}>
-      {copied ? "복사했어요 — 붙여넣기만 하세요" : "내 그릇 자랑하기"}
+      {copied ? "복사했어요! 붙여넣기만 하세요" : "내 그릇 자랑하기"}
     </button>
   );
 }
