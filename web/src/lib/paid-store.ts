@@ -1,3 +1,5 @@
+import type { ManseInput } from "./manseryeok";
+import { canonicalInput } from "./pay";
 import type { Reading } from "./reading";
 
 /**
@@ -33,17 +35,65 @@ export async function getPaidStore(): Promise<KvNamespace | null> {
   }
 }
 
-/** 토스 주문번호 규격(6~64자, 영문/숫자/-/_) — KV 키로 쓰기 전 형식 검사 */
+/** 토스페이 주문번호 규격(최대 50자) — KV 키로 쓰기 전 형식 검사 */
 export function isValidOrderId(v: unknown): v is string {
-  return typeof v === "string" && /^[\w-]{6,64}$/.test(v);
+  return typeof v === "string" && /^[\w-]{6,50}$/.test(v);
 }
 
+/**
+ * 서버 영수증 — 결제 시각과, 이 결제가 묶인 사주 지문.
+ *
+ * bind는 결제 직후엔 비어 있다. 결제 시점에는 어떤 사주를 볼지 모르기 때문이다(생년월일은
+ * 결제 정보와 함께 보내지 않는다는 원칙). 첫 열람 때 그 사주에 묶이고, 그 뒤로는 다른
+ * 사주로 같은 주문번호를 쓸 수 없다.
+ */
+export type PaidRecord = { at: string; bind?: string };
+
 export async function markPaid(kv: KvNamespace, orderId: string): Promise<void> {
-  await kv.put(`paid:${orderId}`, new Date().toISOString(), { expirationTtl: TTL_SECONDS });
+  const record: PaidRecord = { at: new Date().toISOString() };
+  await kv.put(`paid:${orderId}`, JSON.stringify(record), { expirationTtl: TTL_SECONDS });
+}
+
+export async function getPaidRecord(kv: KvNamespace, orderId: string): Promise<PaidRecord | null> {
+  const raw = await kv.get(`paid:${orderId}`);
+  if (raw === null) return null;
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (parsed && typeof parsed === "object" && typeof (parsed as PaidRecord).at === "string") {
+      return parsed as PaidRecord;
+    }
+  } catch {
+    /* 구버전 영수증은 ISO 문자열 한 줄이었다 — 아래에서 그대로 받아 준다 */
+  }
+  return { at: raw };
+}
+
+/** 첫 열람에서 이 주문번호를 사주 하나에 묶는다. 이미 묶여 있으면 덮어쓰지 않는다. */
+export async function bindPaidOrder(kv: KvNamespace, orderId: string, bind: string): Promise<void> {
+  const rec = (await getPaidRecord(kv, orderId)) ?? { at: new Date().toISOString() };
+  if (rec.bind) return;
+  const next: PaidRecord = { at: rec.at, bind };
+  await kv.put(`paid:${orderId}`, JSON.stringify(next), { expirationTtl: TTL_SECONDS });
 }
 
 export async function isPaid(kv: KvNamespace, orderId: string): Promise<boolean> {
   return (await kv.get(`paid:${orderId}`)) !== null;
+}
+
+/**
+ * 사주 지문 — "이 주문번호는 이 사주의 것"을 나타내는 32자리 값.
+ *
+ * 생년월일을 그대로 저장하지 않기 위해 해시로 만든다(개인정보처리방침: 서버는 생년월일을
+ * 보관하지 않는다). 주문번호를 소금으로 섞기 때문에 같은 사람이 다시 결제해도 값이 달라져,
+ * 저장된 지문끼리 맞춰 봐도 동일인을 추적할 수 없다.
+ */
+export async function bindToken(orderId: string, input: Omit<ManseInput, "applyLMT">): Promise<string> {
+  const data = new TextEncoder().encode(`${orderId}|${canonicalInput(input)}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 32);
 }
 
 export type CachedReading = {

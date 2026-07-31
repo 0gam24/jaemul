@@ -1,19 +1,41 @@
 /**
- * 결제(M3) 공통 — 가격·키·영수증 저장
+ * 결제(M3) 공통 — 가격·영수증 저장
  *
- * 가격의 유일한 진실은 서버 상수 PRICE_KRW (절대규칙 7: 클라이언트 금액 신뢰 금지 —
- * confirm 엣지에서 이 값과 다르면 무조건 거절).
+ * 가격의 유일한 진실은 서버 상수 PRICE_KRW (절대규칙 7: 클라이언트 금액 신뢰 금지).
+ * 토스페이는 결제 생성부터 서버가 하므로 클라이언트는 금액을 아예 보내지 않는다 —
+ * 조작된 금액으로는 결제가 만들어지지조차 않는다.
  *
- * 키: 지금은 토스 문서용 공개 테스트 키(회원가입 없이 누구나 쓰는 연습 키 — 실제 돈 안 나감).
- * 심사 통과 후 .env.local / 배포 환경변수에 실키를 넣으면 자동으로 교체된다.
+ * 키는 여기 없다. 토스페이는 공개 클라이언트 키가 없고 API Key 하나뿐이라,
+ * 서버 전용 파일(tosspay-server.ts)에만 둔다. 이 파일은 클라이언트도 import한다.
  */
+
+import type { ManseInput } from "./manseryeok";
 
 export const PRICE_KRW = 990;
 export const ORDER_NAME = "재물그릇 상세 풀이";
 
-/** 클라이언트 키 (공개되어도 되는 값) */
-export const TOSS_CLIENT_KEY =
-  process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+/**
+ * 사주 입력값을 한 줄로 펴는 정규형 — "같은 사주인가"를 판정하는 유일한 기준.
+ *
+ * 결제 1건은 사주 1개에 묶인다. 한 PC를 여러 사람이 쓰는 상황(가족·사무실)에서 앞사람
+ * 영수증으로 뒷사람이 열거나, 반대로 뒷사람 때문에 앞사람 풀이가 덮이는 걸 막기 위한 것.
+ * 서버는 이 문자열을 그대로 두지 않고 해시로만 보관한다 (paid-store.bindToken).
+ *
+ * 풀이 결과를 바꾸는 값은 전부 들어가야 한다 — 하나라도 빠지면 다른 사주가 같은 것으로 통과한다.
+ */
+export function canonicalInput(i: Omit<ManseInput, "applyLMT">): string {
+  return [
+    i.year,
+    i.month,
+    i.day,
+    i.hour ?? "",
+    i.minute ?? "",
+    i.gender,
+    i.calendar ?? "solar",
+    i.leap ? 1 : 0,
+    i.timeUnknown ? 1 : 0,
+  ].join("|");
+}
 
 /** 기기 저장 영수증 — 생년월일·사주 내용 없음 (orderId·시각만) */
 export type PaidReceipt = { v: 1; orderId: string; paidAt: string };
@@ -50,7 +72,10 @@ export function loadReceipt(): PaidReceipt | null {
   }
 }
 
-/** 주문번호 — 토스 규격(6~64자, 영문/숫자/-/_). 개인정보 0% */
+/**
+ * 주문번호 — 토스페이 규격(최대 50자, 영문·숫자·`_-:.^@`). 개인정보 0%.
+ * 만드는 쪽은 서버(/api/pay/create)다 — 클라이언트가 정한 주문번호를 믿지 않는다.
+ */
 export function newOrderId(): string {
   const rand = crypto.randomUUID().replace(/-/g, "").slice(0, 20);
   return `jaemul_${rand}`;

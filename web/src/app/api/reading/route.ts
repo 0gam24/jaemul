@@ -6,12 +6,15 @@ import {
   getPaidStore,
   getCachedReading,
   putCachedReading,
+  bindPaidOrder,
+  bindToken,
+  getPaidRecord,
   isPaid,
   isValidOrderId,
   markPaid,
   type CachedReading,
 } from "@/lib/paid-store";
-import { isOrderPaidAtToss } from "@/lib/toss-server";
+import { isOrderPaidAtTossPay } from "@/lib/tosspay-server";
 import {
   READING_SYSTEM,
   READING_SCHEMA,
@@ -72,11 +75,13 @@ const DEV_UNLOCK =
  *
  * 이전에는 잠금이 기기 localStorage에만 있어서 여기로 직접 요청하면 990원 풀이가 무료로
  * 나왔다(LLM 비용도 그대로 발생). 이제 자격은 서버만 판단한다:
- *   ① KV 영수증 확인 → ② 없으면 토스에 직접 조회(진실의 원천) → ③ 둘 다 아니면 거절.
+ *   ① KV 영수증 확인 → ② 없으면 토스페이에 직접 조회(진실의 원천) → ③ 둘 다 아니면 거절.
  * ②에서 통과하면 영수증을 복구해 두므로 다음 열람은 다시 빨라지고, KV 쓰기가 실패했던
  * 결제자도 정상 열람된다(돈은 냈는데 못 보는 상황 방지).
  *
  * 기본값은 fail-closed — 저장소가 없든 조회가 실패하든 '미결제'로 본다.
+ *
+ * 나중에 결제수단이 늘면(카드·네이버페이) ②에 조회를 하나씩 더 이어 붙이면 된다.
  */
 async function checkPaid(
   orderId: unknown,
@@ -85,7 +90,7 @@ async function checkPaid(
   if (DEV_UNLOCK) return true;
   if (!isValidOrderId(orderId)) return false;
   if (kv && (await isPaid(kv, orderId))) return true;
-  if (await isOrderPaidAtToss(orderId)) {
+  if (await isOrderPaidAtTossPay(orderId)) {
     if (kv) await markPaid(kv, orderId);
     return true;
   }
@@ -152,9 +157,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "payment_required" }, { status: 402 });
   }
 
-  // 같은 주문번호로 이미 구운 풀이가 있으면 그대로 돌려준다 —
-  // 새로고침·재접속마다 LLM을 다시 부르지 않는다 (주문 1건 = 생성 1회)
+  // 주문번호 1건 = 사주 1개.
+  //
+  // 영수증은 기기에 남으므로 한 PC를 여러 사람이 쓰면(가족·사무실) 뒷사람이 무료 결과만
+  // 새로 뽑고 앞사람 영수증으로 /p에 들어올 수 있다. 그때 앞사람 풀이가 그대로 나오면
+  // 남의 사주를 보게 되고, 반대로 캐시가 비어 있었다면 앞사람 자리를 덮어쓴다.
+  // 첫 열람에서 이 주문번호를 그 사주에 묶고, 다른 사주로 오면 결제 화면으로 되돌린다.
   if (kv && isValidOrderId(body.orderId)) {
+    const bind = await bindToken(body.orderId, body.input);
+    const record = await getPaidRecord(kv, body.orderId);
+    if (record?.bind && record.bind !== bind) {
+      return NextResponse.json({ error: "payment_required", reason: "other_chart" }, { status: 402 });
+    }
+    if (record && !record.bind) await bindPaidOrder(kv, body.orderId, bind);
+
+    // 같은 사주로 이미 구운 풀이가 있으면 그대로 돌려준다 —
+    // 새로고침·재접속마다 LLM을 다시 부르지 않는다 (주문 1건 = 생성 1회)
     const cached = await getCachedReading(kv, body.orderId);
     if (cached) return NextResponse.json({ ...cached, cached: true });
   }

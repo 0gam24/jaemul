@@ -2,24 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { loadTossPayments, ANONYMOUS, type TossPaymentsWidgets } from "@tosspayments/tosspayments-sdk";
 import { loadResult } from "@/lib/result-store";
 import { vesselBySlug, type VesselType } from "@/lib/vessel-types";
 import { PremiumVessel } from "@/components/PremiumVessel";
-import { PRICE_KRW, ORDER_NAME, TOSS_CLIENT_KEY, newOrderId } from "@/lib/pay";
+import { PRICE_KRW, ORDER_NAME } from "@/lib/pay";
 
 /**
- * 결제 페이지 (M3) — 토스페이먼츠 결제위젯 v2
- * - 금액은 표시용일 뿐, 진짜 검증은 /api/pay/confirm 서버 상수로 (절대규칙 7)
+ * 결제 페이지 (M3) — 토스페이 간편결제
+ *
+ * 토스페이먼츠 위젯과 달리 화면 안에 결제 UI를 심지 않는다. 서버가 결제를 만들고
+ * 구매자를 토스페이 결제 페이지로 보냈다가 되돌려받는 방식이다.
+ *   [결제하기] → /api/pay/create → checkoutPage로 이동 → 토스 앱 인증 → /pay/success
+ *
+ * - 금액은 서버가 정한다. 이 화면의 숫자는 표시용일 뿐이다 (절대규칙 7)
  * - 결제 전 고지: 청약철회 불가 동의 체크 필수 (절대규칙 4) + 무료 미리보기는 결과 카드가 제공
- * - 비회원 결제(ANONYMOUS) — 가입 없음 원칙 유지, 개인정보 미수집
+ * - 가입 없음 원칙 유지, 개인정보 미수집
  */
 
 export default function PayPage() {
   const [state, setState] = useState<"init" | "ready" | "none" | "paying">("init");
   const [vessel, setVessel] = useState<VesselType | null>(null);
   const [agreed, setAgreed] = useState(false);
-  const widgetsRef = useRef<TossPaymentsWidgets | null>(null);
+  const [error, setError] = useState("");
   const started = useRef(false);
 
   useEffect(() => {
@@ -31,32 +35,25 @@ export default function PayPage() {
       return;
     }
     setVessel(vesselBySlug(stored.slug));
-
-    (async () => {
-      const toss = await loadTossPayments(TOSS_CLIENT_KEY);
-      const widgets = toss.widgets({ customerKey: ANONYMOUS });
-      await widgets.setAmount({ currency: "KRW", value: PRICE_KRW });
-      await Promise.all([
-        widgets.renderPaymentMethods({ selector: "#payment-method", variantKey: "DEFAULT" }),
-        widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),
-      ]);
-      widgetsRef.current = widgets;
-      setState("ready");
-    })().catch(() => setState("none"));
+    setState("ready");
   }, []);
 
   async function onPay() {
-    if (!widgetsRef.current || !agreed || state === "paying") return;
+    if (!agreed || state !== "ready") return;
     setState("paying");
+    setError("");
     try {
-      await widgetsRef.current.requestPayment({
-        orderId: newOrderId(),
-        orderName: ORDER_NAME,
-        successUrl: `${location.origin}/pay/success`,
-        failUrl: `${location.origin}/pay/fail`,
-      });
+      const res = await fetch("/api/pay/create", { method: "POST" });
+      const data = (await res.json()) as { checkoutPage?: string; message?: string };
+      if (!res.ok || !data.checkoutPage) {
+        setError(data.message ?? "결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
+        setState("ready");
+        return;
+      }
+      // 토스페이 결제 페이지로 이동 — 인증을 마치면 /pay/success로 돌아온다
+      location.href = data.checkoutPage;
     } catch {
-      // 사용자가 결제창을 닫음 — 다시 시도 가능 상태로
+      setError("네트워크 문제로 결제를 시작하지 못했어요.");
       setState("ready");
     }
   }
@@ -108,10 +105,12 @@ export default function PayPage() {
         </p>
       </div>
 
-      {/* 토스 결제 UI */}
-      <div className="card mt-4 overflow-hidden">
-        <div id="payment-method" />
-        <div id="agreement" />
+      {/* 결제수단 안내 — 결제 버튼을 누르기 전에 토스 앱이 필요하다는 걸 알 수 있어야 한다 */}
+      <div className="card mt-3 px-5 py-3.5 text-[13px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+        <p>
+          <b style={{ color: "var(--ink)" }}>결제수단</b> — 토스페이 간편결제. 버튼을 누르면 토스
+          결제 화면으로 이동하고, 토스에 등록된 카드·계좌로 결제한 뒤 이 페이지로 돌아와요.
+        </p>
       </div>
 
       {/* 청약철회 고지 — 법적 필수, 체크 전 결제 불가 */}
@@ -133,11 +132,21 @@ export default function PayPage() {
         disabled={state !== "ready" || !agreed}
         onClick={onPay}
       >
-        {state === "init" ? "결제 수단 불러오는 중…" : state === "paying" ? "결제창 여는 중…" : `${PRICE_KRW.toLocaleString()}원 결제하기`}
+        {state === "init"
+          ? "준비하는 중…"
+          : state === "paying"
+            ? "토스로 이동하는 중…"
+            : `토스페이로 ${PRICE_KRW.toLocaleString()}원 결제하기`}
       </button>
 
+      {error && (
+        <p className="mt-3 text-center text-[13px]" style={{ color: "var(--ink-soft)" }}>
+          {error}
+        </p>
+      )}
+
       <p className="mt-4 text-center text-[12px] leading-relaxed" style={{ color: "var(--ink-faint)" }}>
-        결제 정보는 토스페이먼츠가 안전하게 처리하며,
+        결제 정보는 토스페이가 안전하게 처리하며,
         <br />
         생년월일시는 결제 정보와 함께 저장되지 않아요.
       </p>

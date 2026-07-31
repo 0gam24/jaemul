@@ -19,7 +19,7 @@ export default function PayFailPage() {
       <p className="mt-2 text-[14px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
         {message}
         <br />
-        카드에 청구된 금액은 없어요.
+        청구된 금액은 없어요.
       </p>
       <Link href="/pay" className="btn-primary mt-8">다시 시도하기</Link>
       <Link href="/" className="mt-4 text-[13px] underline underline-offset-2" style={{ color: "var(--ink-soft)" }}>

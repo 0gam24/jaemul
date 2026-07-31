@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { saveReceipt, PRICE_KRW } from "@/lib/pay";
 
 /**
- * 결제 인증 성공 리다이렉트 → 서버 승인(confirm) → 영수증 저장 → 풀이 페이지로.
- * 승인 전까지는 "결제 완료"라고 말하지 않는다 (인증≠승인).
+ * 토스페이 인증 완료 리다이렉트 → 서버 승인(confirm) → 영수증 저장 → 풀이 페이지로.
+ *
+ * 인증은 아직 결제가 아니다. 서버가 승인을 마치기 전까지는 "결제 완료"라고 말하지 않는다.
+ * 서버로 보내는 건 주문번호 하나뿐 — 금액도 토큰도 보내지 않는다(전부 서버가 조회한다).
  */
 
 export default function PaySuccessPage() {
@@ -19,11 +21,8 @@ export default function PaySuccessPage() {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const sp = new URLSearchParams(location.search);
-    const paymentKey = sp.get("paymentKey");
-    const orderId = sp.get("orderId");
-    const amount = Number(sp.get("amount"));
-    if (!paymentKey || !orderId) {
+    const orderNo = new URLSearchParams(location.search).get("orderNo");
+    if (!orderNo) {
       setMessage("결제 정보가 올바르지 않아요.");
       setState("fail");
       return;
@@ -31,7 +30,7 @@ export default function PaySuccessPage() {
     fetch("/api/pay/confirm", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paymentKey, orderId, amount }),
+      body: JSON.stringify({ orderNo }),
     })
       .then(async (r) => {
         const data = (await r.json()) as { ok?: boolean; message?: string };
@@ -40,7 +39,7 @@ export default function PaySuccessPage() {
           setState("fail");
           return;
         }
-        saveReceipt(orderId);
+        saveReceipt(orderNo);
         router.replace("/p");
       })
       .catch(() => {
