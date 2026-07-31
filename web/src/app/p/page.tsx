@@ -113,13 +113,15 @@ export default function PaidReadingPage() {
           당신 사주로만 계산해서 지금 바로 구워드려요.
         </p>
         <ul className="card mt-5 w-full space-y-2.5 px-5 py-4 text-left text-[14px] leading-relaxed">
-          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span><b>돈이 들어오는 달</b> — 앞으로 12개월 캘린더</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span><b>재물 구조 심층 풀이</b> — 무료 카드가 나온 계산 근거</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span><b>대운 10년 흐름</b> — 지난 10년 회고 + 다가올 방향</span></li>
-          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span><b>다음 행동 3가지 + 지출 구멍</b> — 내 사주 전용 처방</span></li>
+          {/* 네 줄의 생김새를 일부러 다르게 뒀다. 같은 틀("명사 — 설명")이 반복되면
+              사람이 쓴 글이 아니라 틀에 찍어낸 글로 읽힌다 */}
+          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span>앞으로 12개월, <b>돈이 들어오는 달</b> 캘린더</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span>무료 카드가 왜 그 유형이었는지 <b>계산 근거까지</b></span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span><b>대운 10년 흐름</b> (지난 10년 회고 + 다가올 방향)</span></li>
+          <li className="flex gap-2"><span style={{ color: "var(--gold-deep)" }}>◆</span><span>내 사주에만 나오는 <b>다음 행동 3가지</b>와 조심할 지출 구멍</span></li>
         </ul>
         <p className="mt-4 text-[13px]" style={{ color: "var(--ink-soft)" }}>
-          철학관에서 20만원 주고 묻는 것 — 여기선 <b style={{ color: "var(--ink)" }}>{PRICE_KRW.toLocaleString()}원</b>
+          철학관 20만원짜리 상담, 여기선 <b style={{ color: "var(--ink)" }}>{PRICE_KRW.toLocaleString()}원</b>
         </p>
         <Link href="/pay" className="btn-primary mt-5">
           {PRICE_KRW.toLocaleString()}원으로 열기
@@ -160,7 +162,7 @@ export default function PaidReadingPage() {
         <p className="mt-2 text-[14px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
           가마가 잠깐 흔들렸어요. 다시 시도하면 대부분 해결돼요.
           <br />
-          결제는 안전하게 확인돼 있어요 — 몇 번을 다시 구워도 추가 결제는 없어요.
+          결제는 안전하게 확인돼 있어요. 몇 번을 다시 구워도 추가 결제는 없어요.
         </p>
         <button className="btn-primary mt-8" onClick={generate}>다시 시도</button>
         {vessel && (
@@ -229,7 +231,7 @@ export default function PaidReadingPage() {
 
       <section className="fade-in-up mt-8" style={stagger(1)}>
         <h2 className="mb-3 text-[13px] font-bold tracking-wider" style={{ color: "var(--ink-faint)" }}>
-          내 그릇의 구조 — 들어오는 길과 새는 구멍
+          내 그릇의 구조, 들어오는 길과 새는 구멍
         </h2>
         {elements && <ElementBars elements={elements} />}
         <p className="whitespace-pre-line text-[15px] leading-relaxed">{reading.structure}</p>
@@ -245,7 +247,7 @@ export default function PaidReadingPage() {
       {/* 돈의 달력 — 대운 위치 안내문(flow)이 캘린더 바로 위에 얹힌다 */}
       <section className="fade-in-up mt-8" style={stagger(3)}>
         <h2 className="mb-1 text-[13px] font-bold tracking-wider" style={{ color: "var(--ink-faint)" }}>
-          돈의 달력 — 지금 10년과 앞으로 12개월
+          돈의 달력 (지금 10년, 앞으로 12개월)
         </h2>
         <p className="mb-4 whitespace-pre-line text-[15px] leading-relaxed">{reading.flow}</p>
         <p className="mb-3 text-[11px]" style={{ color: "var(--ink-faint)" }}>
@@ -273,7 +275,9 @@ export default function PaidReadingPage() {
         <ul className="mt-3 space-y-1.5">
           {reading.months.filter((m) => m.level === 3).map((m) => (
             <li key={`${m.year}-${m.month}`} className="text-[14px]">
-              <b style={{ color: "var(--gold-deep)" }}>{m.year !== reading.months[0].year ? `${String(m.year).slice(2)}년 ` : ""}{m.month}월</b> — {m.note}
+              {/* 달과 노트 사이는 굵기·색으로 이미 갈린다. 여기에 부호까지 넣으면
+                  같은 부호가 목록 내내 반복돼 틀에 찍은 것처럼 보인다 */}
+              <b style={{ color: "var(--gold-deep)" }}>{m.year !== reading.months[0].year ? `${String(m.year).slice(2)}년 ` : ""}{m.month}월</b>{" "}{m.note}
               <span className="ml-1 text-[11px]" style={{ color: "var(--ink-faint)" }}>({m.ganzhi})</span>
             </li>
           ))}
@@ -316,7 +320,7 @@ function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading 
     const url = `${location.origin}/vs/${vessel.slug}?from=finale`;
     if (
       await shareToKakao({
-        title: `나 ${vessel.name}(100명 중 ${vessel.per100}명)이래 — 너는 무슨 그릇이야?`,
+        title: `나 ${vessel.name}(100명 중 ${vessel.per100}명)이래! 너는 무슨 그릇이야?`,
         description: `나랑 돈이 통하는 그릇이 따로 있대. 생년월일만 넣으면 무료로 나와`,
         imageUrl: `${location.origin}/api/og/${vessel.slug}?vs=1&v=2`,
         url,
@@ -324,9 +328,9 @@ function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading 
       })
     ) return;
     if (navigator.share) {
-      try { await navigator.share({ title: "재물그릇", text: `나 ${vessel.name}이래 — 너는 무슨 그릇이야?`, url }); return; } catch { /* 취소 */ }
+      try { await navigator.share({ title: "재물그릇", text: `나 ${vessel.name}이래! 너는 무슨 그릇이야?`, url }); return; } catch { /* 취소 */ }
     }
-    await copyLink(`나 ${vessel.name}이래 — 너는 무슨 그릇이야?`, url);
+    await copyLink(`나 ${vessel.name}이래! 너는 무슨 그릇이야?`, url);
   }
 
   async function onKakao() {
@@ -380,18 +384,18 @@ function PaidFinale({ vessel, reading }: { vessel: VesselType; reading: Reading 
           className="mt-4 w-full rounded-xl px-4 py-3 text-[15px] font-bold transition-transform active:scale-[0.97]"
           style={{ background: "rgba(255,255,255,0.94)", color: "var(--gold-deep)" }}
         >
-          {copied ? "복사 완료 — 붙여넣기만 하면 돼요" : "너는 무슨 그릇이야? 물어보기"}
+          {copied ? "복사 완료! 붙여넣기만 하면 돼요" : "너는 무슨 그릇이야? 물어보기"}
         </button>
         <button
           onClick={onKakao}
           className="mt-2 w-full rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition-transform active:scale-[0.97]"
           style={{ borderColor: "rgba(255,255,255,0.5)", color: "#fff", background: "transparent" }}
         >
-          내 결과 자랑하기 — &ldquo;{hook.slice(0, 18)}{hook.length > 18 ? "…" : ""}&rdquo;
+          내 결과 자랑하기 &ldquo;{hook.slice(0, 18)}{hook.length > 18 ? "…" : ""}&rdquo;
         </button>
       </div>
       <p className="mt-5 text-center text-[12px] leading-relaxed" style={{ color: "var(--ink-faint)" }}>
-        이 풀이는 당신 사주로만 생성된 세상에 1개짜리 — 결제한 이 기기에서 180일간 다시 열람할 수 있어요.
+        이 풀이는 당신 사주로만 생성된 세상에 1개짜리예요. 결제한 이 기기에서 180일간 다시 열람할 수 있어요.
       </p>
       <p className="mt-3 text-center">
         <Link href={`/r/${vessel.slug}`} className="text-[13px] underline underline-offset-2" style={{ color: "var(--ink-soft)" }}>
@@ -410,7 +414,7 @@ function DdayChip({ months }: { months: Reading["months"] }) {
   const days = Math.ceil((target.getTime() - Date.now()) / 86400000);
   if (days <= 0) return (
     <span className="mt-3 rounded-full px-4 py-1.5 text-[13px] font-bold" style={{ background: "var(--gold)", color: "#fff" }}>
-      지금이 돈길 달 — {best.month}월
+      지금이 돈길 달, {best.month}월
     </span>
   );
   return (
@@ -435,7 +439,7 @@ function SynergySection({ vessel, reading }: { vessel: VesselType; reading: Read
     const url = `${location.origin}/vs/${vessel.slug}?from=ask`;
     if (
       await shareToKakao({
-        title: `나 ${vessel.name}(100명 중 ${vessel.per100}명)이래 — 너는 무슨 그릇이야?`,
+        title: `나 ${vessel.name}(100명 중 ${vessel.per100}명)이래! 너는 무슨 그릇이야?`,
         description: `나랑 돈이 통하는 그릇이 따로 있대. 우리 맞는지 보게, 생년월일만 넣으면 무료야`,
         imageUrl: `${location.origin}/api/og/${vessel.slug}?vs=1&v=2`,
         url,
@@ -443,9 +447,9 @@ function SynergySection({ vessel, reading }: { vessel: VesselType; reading: Read
       })
     ) return;
     if (navigator.share) {
-      try { await navigator.share({ title: "재물그릇", text: `나 ${vessel.name}이래 — 너는 무슨 그릇이야?`, url }); return; } catch { /* 취소 */ }
+      try { await navigator.share({ title: "재물그릇", text: `나 ${vessel.name}이래! 너는 무슨 그릇이야?`, url }); return; } catch { /* 취소 */ }
     }
-    await navigator.clipboard.writeText(`나 ${vessel.name}이래 — 너는 무슨 그릇이야?\n${url}`);
+    await navigator.clipboard.writeText(`나 ${vessel.name}이래! 너는 무슨 그릇이야?\n${url}`);
   }
 
   return (
@@ -511,7 +515,7 @@ function SynergySection({ vessel, reading }: { vessel: VesselType; reading: Read
       {/* 즉석 확인 — 상대 유형을 이미 아는 독자용, 엔진 판정이라 비용 0 */}
       <details className="mt-3">
         <summary className="cursor-pointer text-[13px] underline underline-offset-2" style={{ color: "var(--ink-soft)" }}>
-          상대 유형을 이미 안다면 — 바로 대보기
+          상대 유형을 이미 안다면 바로 대보기
         </summary>
         <div className="mt-2 grid grid-cols-4 gap-1.5">
           {Object.values(VESSEL_TYPES).map((v) => (
@@ -579,7 +583,7 @@ function ShareLineCard({ vessel, shareLine, months }: { vessel: VesselType; shar
           className="mt-3 w-full rounded-xl px-4 py-2.5 text-[14px] font-bold transition-transform active:scale-[0.97]"
           style={{ background: "rgba(255,255,255,0.92)", color: "var(--gold-deep)" }}
         >
-          {copied ? "복사 완료 — 붙여넣기만 하면 돼요" : "이 한 줄, 친구한테 던지기"}
+          {copied ? "복사 완료! 붙여넣기만 하면 돼요" : "이 한 줄, 친구한테 던지기"}
         </button>
       </div>
     </div>
@@ -593,12 +597,12 @@ function TeaserShareButton({ vessel, months }: { vessel: VesselType; months: Rea
   async function onShare() {
     track("share_click", { kind: "paidshare" });
     const url = `${location.origin}/t/${vessel.slug}/${best.month}?from=paidshare`;
-    const text = `내 돈길 열리는 달은 ${best.month}월 — 네 달은 언제야?`;
+    const text = `내 돈길 열리는 달은 ${best.month}월! 네 달은 언제야?`;
     // 1순위 카톡 카드(키 설정 시) — 결제자의 자랑이 이미지 카드로 배달된다
     if (
       await shareToKakao({
         title: `내 돈길 열리는 달은 ${best.month}월`,
-        description: `${vessel.name}의 12개월 계산 결과 — 네 달은 언제야?`,
+        description: `${vessel.name}의 12개월 계산 결과. 네 달은 언제야?`,
         imageUrl: `${location.origin}/api/og/${vessel.slug}?v=2`,
         url,
         buttons: [{ title: "내 돈길 달 확인하기", url: `${location.origin}/input?from=paidshare` }],
@@ -637,7 +641,7 @@ function ElementBars({ elements }: { elements: Record<string, number> }) {
   return (
     <div className="card mb-4 px-4 py-3">
       <p className="mb-2 text-[11px] font-semibold" style={{ color: "var(--ink-faint)" }}>
-        내 사주의 다섯 기운 — 이 균형이 그릇 모양을 정해요
+        내 사주의 다섯 기운, 이 균형이 그릇 모양을 정해요
       </p>
       <div className="flex items-end gap-2">
         {order.map((k) => {

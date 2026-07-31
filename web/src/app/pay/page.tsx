@@ -88,7 +88,7 @@ export default function PayPage() {
         <ul className="space-y-1.5 text-[14px]">
           <li>◆ 나의 재물 구조 심층 풀이</li>
           <li>◆ 10년 단위 돈의 계절(대운) 해석</li>
-          <li>◆ 돈 들어오는 달 — 앞으로 12개월 캘린더</li>
+          <li>◆ 앞으로 12개월, 돈 들어오는 달 캘린더</li>
           <li>◆ 다음 행동 3가지 + 조심할 지출 구멍</li>
         </ul>
       </div>
@@ -96,20 +96,24 @@ export default function PayPage() {
       {/* 제공 방식·이용 기간 고지 — 전자상거래법 + PG 심사 요건: 결제 전에 소비자가 확인 가능해야 함 */}
       <div className="card mt-3 px-5 py-3.5 text-[13px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
         <p>
-          <b style={{ color: "var(--ink)" }}>제공 방식·시점</b> — 결제 완료 즉시 자동 생성, 1~2분 내
-          열람 (결제일 당일 제공 완료)
+          <b style={{ color: "var(--ink)" }}>제공 방식·시점</b>
+          <br />
+          결제 완료 즉시 자동 생성, 1~2분 내 열람 (결제일 당일 제공 완료)
         </p>
-        <p className="mt-1">
-          <b style={{ color: "var(--ink)" }}>재열람 기간</b> — 결제일부터 180일간, 결제한 기기에서
-          횟수 제한 없이 재열람
+        <p className="mt-2">
+          <b style={{ color: "var(--ink)" }}>재열람 기간</b>
+          <br />
+          결제일부터 180일간, 결제한 기기에서 횟수 제한 없이 재열람
         </p>
       </div>
 
       {/* 결제수단 안내 — 결제 버튼을 누르기 전에 토스 앱이 필요하다는 걸 알 수 있어야 한다 */}
       <div className="card mt-3 px-5 py-3.5 text-[13px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
         <p>
-          <b style={{ color: "var(--ink)" }}>결제수단</b> — 토스페이 간편결제. 버튼을 누르면 토스
-          결제 화면으로 이동하고, 토스에 등록된 카드·계좌로 결제한 뒤 이 페이지로 돌아와요.
+          <b style={{ color: "var(--ink)" }}>결제수단</b>
+          <br />
+          토스페이 간편결제. 버튼을 누르면 토스 결제 화면으로 이동하고, 토스에 등록된 카드·계좌로
+          결제한 뒤 이 페이지로 돌아와요.
         </p>
       </div>
 

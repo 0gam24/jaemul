@@ -162,15 +162,19 @@ export function buildMonthPlan(input: ManseInput, from: Date): MonthPlan {
   if (curIdx < 0) curIdx = list.findIndex((d) => age >= d.startAge && age <= d.endAge);
   if (curIdx < 0) curIdx = list.findIndex((d) => d.startAge > age) - 1;
   let daeunLine: string;
+  // 이 문구는 flow 첫 줄에 '그대로' 인용되므로 독자가 읽는 문장이다. 화살표·기호로 쓰면
+  // 거기만 기계가 뱉은 것처럼 튄다. 간지는 괄호 속 조연으로 한 번만(용어 규칙), 조사는
+  // 간지 뒤에 붙이지 않는다 — 간지마다 받침이 달라 "壬戌는"처럼 어긋난다.
   if (curIdx < 0 && list.length > 0 && age < list[0].startAge) {
     // 첫 대운이 열리기 전의 어린아이 — '현재 대운'이 존재하지 않는다
-    daeunLine = `아직 첫 대운 전 — 첫 대운 ${list[0].ganzhi}는 ${list[0].startYear}년(만 ${list[0].startAge}세)부터 시작`;
+    daeunLine = `아직 첫 대운이 열리기 전이고, 첫 대운은 ${list[0].startYear}년 만 ${list[0].startAge}세부터 시작돼요`;
   } else {
     const cur = curIdx >= 0 ? list[curIdx] : list[0];
     const nxt = list[curIdx >= 0 ? curIdx + 1 : 1] ?? null;
+    const now = `지금은 만 ${cur.startAge}세부터 ${cur.endAge}세까지 이어지는 대운(${cur.ganzhi}) 안에 있어요`;
     daeunLine = nxt
-      ? `현재 대운 ${cur.ganzhi}(${cur.startAge}~${cur.endAge}세) → 다음 대운 ${nxt.ganzhi}는 ${nxt.startYear}년(만 ${nxt.startAge}세)부터`
-      : `현재 대운 ${cur.ganzhi}(${cur.startAge}~${cur.endAge}세)`;
+      ? `${now}. 다음 대운은 ${nxt.startYear}년 만 ${nxt.startAge}세부터 시작돼요`
+      : now;
   }
 
   return {
@@ -233,7 +237,7 @@ export const READING_SYSTEM = `너는 "재물그릇"의 풀이 엔진이다. 만
 - 유형 이름 자체를 근거로 쓰지 않는다("~형이라는 이름이 괜히 붙은 게 아니다" 류 금지). 근거는 오직 간지·십성·합충·공망·신살.
 
 [돈의 달력 도입 flow — 250~350자, 캘린더 바로 위에 얹는 위치 안내문]
-- 첫 줄에 입력된 '대운 교체 고정 문구'를 그대로 인용하고, 바로 뒤에 "쉽게 말해 ~" 한 문장으로 번역한다(예: "쉽게 말해 씨 뿌리는 10년의 후반부예요").
+- 첫 줄은 입력된 '대운 교체 고정 문구'를 따옴표 없이 그대로 쓰고(네 문장처럼 이어서 쓴다), 바로 뒤에 "쉽게 말해 ~" 한 문장으로 번역한다(예: "쉽게 말해 씨 뿌리는 10년의 후반부예요").
 - 이어서 딱 두 가지만: ①지난 시기의 체감 1~2문장(연도 명시) ②structure에서 세운 결핍·공망이 언제 채워지거나 풀리는지 — 회수는 여기서 짧게라도 반드시 한다.
 - 다음 전환점 연도를 숫자로 명시하고 끝낸다. 10년 나열 금지 — 독자에게 필요한 건 "지금 어디쯤, 다음 변화는 언제"뿐이다.
 - 고정 문구가 "아직 첫 대운 전"이면 회고 대신 첫 대운이 열리는 해가 어떤 전환인지 1~2문장.
