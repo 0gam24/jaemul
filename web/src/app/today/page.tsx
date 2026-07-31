@@ -114,7 +114,7 @@ export default function TodayPage() {
         </div>
 
         <p className="mt-2 text-[14px] font-semibold" style={{ color: "var(--gold-deep)" }}>
-          오늘의 기운: {fortune.label}
+          오늘의 흐름: {fortune.label}
         </p>
 
         <p

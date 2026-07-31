@@ -23,6 +23,8 @@ export default function TypesPage() {
       <h1 className="mt-2 text-center text-[24px] font-extrabold">16가지 그릇, 전부 구경하기</h1>
       <p className="mt-1 text-center text-[13px]" style={{ color: "var(--ink-faint)" }}>
         희귀한 그릇부터 보여드려요. 숫자는 8만 사주 분포 실측값이에요
+        <br />
+        (유형별 반올림이라 다 더하면 100명이 살짝 넘어요)
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-3">

@@ -86,7 +86,7 @@ export function ResultView({ vessel, initialMbti }: { vessel: VesselType; initia
             className="rounded-full px-4 py-1.5 text-[12px] font-semibold"
             style={{ background: "rgba(43,33,24,0.55)", color: "#fff" }}
           >
-            탭하면 바로 보기
+            바로 보기
           </span>
         </button>
       )}
@@ -366,7 +366,7 @@ function LockedCalendarTeaser() {
       <div className="absolute inset-x-0 bottom-0 top-[46px] flex flex-col items-center justify-center">
         <span className="lock-breathe text-[22px]" aria-label="잠김">🔒</span>
         <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--ink-soft)" }}>
-          결제하면 내 사주로 다시 계산돼 열려요
+          결제하면 내 사주로 계산해서 바로 열어드려요
         </p>
       </div>
     </div>
